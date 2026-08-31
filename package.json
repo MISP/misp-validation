@@ -1,0 +1,19 @@
+{
+  "name": "misp-validation",
+  "version": "0.1.0",
+  "description": "Portable normalization and validation rules for MISP attributes",
+  "type": "module",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
+  "files": ["dist/src", "spec/attributes.json"],
+  "scripts": {
+    "build": "tsc -p typescript/tsconfig.json",
+    "test": "npm run build && node dist/test/runtime.js"
+  },
+  "engines": { "node": ">=18" },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^6.0.0"
+  },
+  "license": "BSD-2-Clause"
+}
