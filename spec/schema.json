@@ -103,6 +103,8 @@
             "strip_prefix",
             "asdot_to_asplain",
             "trim",
+            "trim_chars",
+            "normalize_vulnerability",
             "normalize_boolean"
           ]
         },
@@ -120,6 +122,9 @@
         },
         "case_insensitive": {
           "type": "boolean"
+        },
+        "characters": {
+          "type": "string"
         }
       },
       "additionalProperties": false
@@ -139,6 +144,8 @@
             "boolean",
             "ip",
             "string",
+            "datetime",
+            "ssh_fingerprint",
             "composite"
           ]
         },

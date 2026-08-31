@@ -31,7 +31,7 @@
   },
   {
     "type": "weakness",
-    "input": "cwe–79",
+    "input": "cwe\u201379",
     "normalized": "CWE-79",
     "valid": true
   },
@@ -88,5 +88,125 @@
     "input": " false ",
     "normalized": "0",
     "valid": true
+  },
+  {
+    "type": "domain",
+    "input": ".Example.COM.",
+    "normalized": "example.com",
+    "valid": true
+  },
+  {
+    "type": "domain",
+    "input": "localhost",
+    "normalized": "localhost",
+    "valid": false
+  },
+  {
+    "type": "hostname",
+    "input": "Mail.Example.COM",
+    "normalized": "mail.example.com",
+    "valid": true
+  },
+  {
+    "type": "hostname",
+    "input": "bad host.example",
+    "normalized": "bad host.example",
+    "valid": false
+  },
+  {
+    "type": "url",
+    "input": "https://example.com/a?b=c",
+    "normalized": "https://example.com/a?b=c",
+    "valid": true
+  },
+  {
+    "type": "url",
+    "input": "https://example.com/\nevil",
+    "normalized": "https://example.com/\nevil",
+    "valid": false
+  },
+  {
+    "type": "email",
+    "input": "Alice@Example.COM",
+    "normalized": "alice@example.com",
+    "valid": true
+  },
+  {
+    "type": "email-src",
+    "input": "not-an-address",
+    "normalized": "not-an-address",
+    "valid": false
+  },
+  {
+    "type": "datetime",
+    "input": "2024-02-29T12:34:56Z",
+    "normalized": "2024-02-29T12:34:56Z",
+    "valid": true
+  },
+  {
+    "type": "datetime",
+    "input": "2023-02-29T12:34:56Z",
+    "normalized": "2023-02-29T12:34:56Z",
+    "valid": false
+  },
+  {
+    "type": "ssdeep",
+    "input": "3:abcDEF/+:/xyz",
+    "normalized": "3:abcDEF/+:/xyz",
+    "valid": true
+  },
+  {
+    "type": "ssdeep",
+    "input": "3:not_valid:hash",
+    "normalized": "3:not_valid:hash",
+    "valid": false
+  },
+  {
+    "type": "tlsh",
+    "input": "T1AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "normalized": "t1aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "valid": true
+  },
+  {
+    "type": "tlsh",
+    "input": "T1abc",
+    "normalized": "t1abc",
+    "valid": false
+  },
+  {
+    "type": "ssh-fingerprint",
+    "input": "MD5:00:11:22:33:44:55:66:77:88:99:aa:bb:cc:dd:ee:ff",
+    "normalized": "MD5:00:11:22:33:44:55:66:77:88:99:aa:bb:cc:dd:ee:ff",
+    "valid": true
+  },
+  {
+    "type": "ssh-fingerprint",
+    "input": "SHA256:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "normalized": "SHA256:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "valid": true
+  },
+  {
+    "type": "ssh-fingerprint",
+    "input": "SHA256:not-base64!",
+    "normalized": "SHA256:not-base64!",
+    "valid": false
+  },
+  {
+    "type": "vulnerability",
+    "input": "cve\u20132024\u201312345",
+    "normalized": "CVE-2024-12345",
+    "valid": true
+  },
+  {
+    "type": "vulnerability",
+    "input": "GHSA-abcd-1234-WXYZ",
+    "normalized": "GHSA-abcd-1234-WXYZ",
+    "valid": true
+  },
+  {
+    "type": "vulnerability",
+    "input": "CVE-24-1",
+    "normalized": "CVE-24-1",
+    "valid": false
   }
 ]
