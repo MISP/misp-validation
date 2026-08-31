@@ -4,6 +4,7 @@ import base64
 import binascii
 from dataclasses import dataclass
 from datetime import datetime
+from importlib.resources import files
 from ipaddress import ip_address, ip_network
 import json
 from pathlib import Path
@@ -34,6 +35,18 @@ class RuleEngine:
     @classmethod
     def from_file(cls, path: str | Path) -> "RuleEngine":
         with open(path, "r", encoding="utf-8") as f:
+            return cls(json.load(f))
+
+    @classmethod
+    def from_default_spec(cls) -> "RuleEngine":
+        """Create an engine using the attribute rules bundled with the package."""
+        spec = files("misp_validation").joinpath("_data/attributes.json")
+        if not spec.is_file():
+            # The package directory is mapped to ``python/misp_validation``
+            # during development, while setuptools maps the canonical spec
+            # directory into the installed package.
+            spec = Path(__file__).resolve().parents[2] / "spec" / "attributes.json"
+        with spec.open("r", encoding="utf-8") as f:
             return cls(json.load(f))
 
     def normalize(self, type_name: str, value: str) -> str:

@@ -39,6 +39,39 @@ php -d zend.assertions=1 -d assert.exception=1 \
 The oracle runner documents the three intentional differences in the current
 prototype: stricter/preserved datetimes and x509 fingerprint normalization.
 
+## Install the Python package
+
+The Python runtime requires Python 3.10 or newer and can be installed directly
+from a checkout:
+
+```bash
+python -m pip install .
+```
+
+The package includes the default attribute specification, so no repository
+paths are needed at runtime:
+
+```python
+from misp_validation import RuleEngine
+
+engine = RuleEngine.from_default_spec()
+result = engine.validate("md5", "d41d8cd98f00b204e9800998ecf8427e")
+assert result.valid
+```
+
+To build the source distribution and wheel that can be uploaded to PyPI:
+
+```bash
+python -m pip install build twine
+python -m build
+python -m twine check dist/*
+python -m twine upload dist/*
+```
+
+The upload command uses the PyPI credentials configured for Twine. Increment
+the version in `pyproject.toml` before publishing a new release because PyPI
+does not allow an existing release file to be replaced.
+
 ## Design rule
 
 The JSON must describe semantics, never Python/PHP/Go/Rust code. For example:

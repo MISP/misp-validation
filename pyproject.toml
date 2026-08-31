@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "misp-validation"
+version = "0.1.0"
+description = "Portable normalization and validation rules for MISP attributes"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [{ name = "MISP Project" }]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Security",
+]
+
+[tool.setuptools]
+packages = ["misp_validation", "misp_validation._data"]
+
+[tool.setuptools.package-dir]
+misp_validation = "python/misp_validation"
+"misp_validation._data" = "spec"
+
+[tool.setuptools.package-data]
+misp_validation = ["py.typed"]
+"misp_validation._data" = ["attributes.json"]
