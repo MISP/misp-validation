@@ -16,17 +16,108 @@
   },
   "definitions": {
     "hashes": {
+      "authentihash": {
+        "encoding": "hex",
+        "length": 64
+      },
       "md5": {
         "encoding": "hex",
         "length": 32
+      },
+      "imphash": {
+        "encoding": "hex",
+        "length": 32
+      },
+      "telfhash": {
+        "encoding": "hex",
+        "length": [
+          70,
+          72
+        ]
       },
       "sha1": {
         "encoding": "hex",
         "length": 40
       },
+      "git-commit-id": {
+        "encoding": "hex",
+        "length": 40
+      },
+      "x509-fingerprint-md5": {
+        "encoding": "hex",
+        "length": 32
+      },
+      "x509-fingerprint-sha1": {
+        "encoding": "hex",
+        "length": 40
+      },
+      "x509-fingerprint-sha256": {
+        "encoding": "hex",
+        "length": 64
+      },
+      "ja3-fingerprint-md5": {
+        "encoding": "hex",
+        "length": 32
+      },
+      "jarm-fingerprint": {
+        "encoding": "hex",
+        "length": 62
+      },
+      "hassh-md5": {
+        "encoding": "hex",
+        "length": 32
+      },
+      "hasshserver-md5": {
+        "encoding": "hex",
+        "length": 32
+      },
+      "pehash": {
+        "encoding": "hex",
+        "length": 40
+      },
+      "sha224": {
+        "encoding": "hex",
+        "length": 56
+      },
       "sha256": {
         "encoding": "hex",
         "length": 64
+      },
+      "sha384": {
+        "encoding": "hex",
+        "length": 96
+      },
+      "sha512": {
+        "encoding": "hex",
+        "length": 128
+      },
+      "sha512/224": {
+        "encoding": "hex",
+        "length": 56
+      },
+      "sha512/256": {
+        "encoding": "hex",
+        "length": 64
+      },
+      "sha3-224": {
+        "encoding": "hex",
+        "length": 56
+      },
+      "sha3-256": {
+        "encoding": "hex",
+        "length": 64
+      },
+      "sha3-384": {
+        "encoding": "hex",
+        "length": 96
+      },
+      "sha3-512": {
+        "encoding": "hex",
+        "length": 128
+      },
+      "dom-hash": {
+        "encoding": "hex",
+        "length": 32
       }
     }
   },
@@ -225,7 +316,7 @@
         ]
       },
       "error": {
-        "code": "invalid_filename_md5",
+        "code": "invalid_filename_hash",
         "message": "Invalid filename|md5 value."
       }
     },
@@ -414,6 +505,792 @@
       "error": {
         "code": "invalid_vulnerability",
         "message": "Invalid vulnerability ID format."
+      }
+    },
+    "authentihash": {
+      "normalize": [
+        {
+          "op": "lowercase"
+        }
+      ],
+      "validate": {
+        "op": "hash",
+        "algorithm": "authentihash"
+      },
+      "error": {
+        "code": "invalid_hash",
+        "message": "Checksum has an invalid length or format."
+      }
+    },
+    "imphash": {
+      "normalize": [
+        {
+          "op": "lowercase"
+        }
+      ],
+      "validate": {
+        "op": "hash",
+        "algorithm": "imphash"
+      },
+      "error": {
+        "code": "invalid_hash",
+        "message": "Checksum has an invalid length or format."
+      }
+    },
+    "telfhash": {
+      "normalize": [
+        {
+          "op": "lowercase"
+        }
+      ],
+      "validate": {
+        "op": "hash",
+        "algorithm": "telfhash"
+      },
+      "error": {
+        "code": "invalid_hash",
+        "message": "Checksum has an invalid length or format."
+      }
+    },
+    "git-commit-id": {
+      "validate": {
+        "op": "hash",
+        "algorithm": "git-commit-id"
+      },
+      "error": {
+        "code": "invalid_hash",
+        "message": "Checksum has an invalid length or format."
+      }
+    },
+    "x509-fingerprint-md5": {
+      "validate": {
+        "op": "hash",
+        "algorithm": "x509-fingerprint-md5"
+      },
+      "error": {
+        "code": "invalid_hash",
+        "message": "Checksum has an invalid length or format."
+      }
+    },
+    "x509-fingerprint-sha1": {
+      "validate": {
+        "op": "hash",
+        "algorithm": "x509-fingerprint-sha1"
+      },
+      "error": {
+        "code": "invalid_hash",
+        "message": "Checksum has an invalid length or format."
+      }
+    },
+    "x509-fingerprint-sha256": {
+      "validate": {
+        "op": "hash",
+        "algorithm": "x509-fingerprint-sha256"
+      },
+      "error": {
+        "code": "invalid_hash",
+        "message": "Checksum has an invalid length or format."
+      }
+    },
+    "ja3-fingerprint-md5": {
+      "normalize": [
+        {
+          "op": "lowercase"
+        }
+      ],
+      "validate": {
+        "op": "hash",
+        "algorithm": "ja3-fingerprint-md5"
+      },
+      "error": {
+        "code": "invalid_hash",
+        "message": "Checksum has an invalid length or format."
+      }
+    },
+    "jarm-fingerprint": {
+      "normalize": [
+        {
+          "op": "lowercase"
+        }
+      ],
+      "validate": {
+        "op": "hash",
+        "algorithm": "jarm-fingerprint"
+      },
+      "error": {
+        "code": "invalid_hash",
+        "message": "Checksum has an invalid length or format."
+      }
+    },
+    "hassh-md5": {
+      "normalize": [
+        {
+          "op": "lowercase"
+        }
+      ],
+      "validate": {
+        "op": "hash",
+        "algorithm": "hassh-md5"
+      },
+      "error": {
+        "code": "invalid_hash",
+        "message": "Checksum has an invalid length or format."
+      }
+    },
+    "hasshserver-md5": {
+      "normalize": [
+        {
+          "op": "lowercase"
+        }
+      ],
+      "validate": {
+        "op": "hash",
+        "algorithm": "hasshserver-md5"
+      },
+      "error": {
+        "code": "invalid_hash",
+        "message": "Checksum has an invalid length or format."
+      }
+    },
+    "pehash": {
+      "normalize": [
+        {
+          "op": "lowercase"
+        }
+      ],
+      "validate": {
+        "op": "hash",
+        "algorithm": "pehash"
+      },
+      "error": {
+        "code": "invalid_hash",
+        "message": "Checksum has an invalid length or format."
+      }
+    },
+    "sha224": {
+      "normalize": [
+        {
+          "op": "lowercase"
+        }
+      ],
+      "validate": {
+        "op": "hash",
+        "algorithm": "sha224"
+      },
+      "error": {
+        "code": "invalid_hash",
+        "message": "Checksum has an invalid length or format."
+      }
+    },
+    "sha384": {
+      "normalize": [
+        {
+          "op": "lowercase"
+        }
+      ],
+      "validate": {
+        "op": "hash",
+        "algorithm": "sha384"
+      },
+      "error": {
+        "code": "invalid_hash",
+        "message": "Checksum has an invalid length or format."
+      }
+    },
+    "sha512": {
+      "normalize": [
+        {
+          "op": "lowercase"
+        }
+      ],
+      "validate": {
+        "op": "hash",
+        "algorithm": "sha512"
+      },
+      "error": {
+        "code": "invalid_hash",
+        "message": "Checksum has an invalid length or format."
+      }
+    },
+    "sha512/224": {
+      "normalize": [
+        {
+          "op": "lowercase"
+        }
+      ],
+      "validate": {
+        "op": "hash",
+        "algorithm": "sha512/224"
+      },
+      "error": {
+        "code": "invalid_hash",
+        "message": "Checksum has an invalid length or format."
+      }
+    },
+    "sha512/256": {
+      "normalize": [
+        {
+          "op": "lowercase"
+        }
+      ],
+      "validate": {
+        "op": "hash",
+        "algorithm": "sha512/256"
+      },
+      "error": {
+        "code": "invalid_hash",
+        "message": "Checksum has an invalid length or format."
+      }
+    },
+    "sha3-224": {
+      "normalize": [
+        {
+          "op": "lowercase"
+        }
+      ],
+      "validate": {
+        "op": "hash",
+        "algorithm": "sha3-224"
+      },
+      "error": {
+        "code": "invalid_hash",
+        "message": "Checksum has an invalid length or format."
+      }
+    },
+    "sha3-256": {
+      "normalize": [
+        {
+          "op": "lowercase"
+        }
+      ],
+      "validate": {
+        "op": "hash",
+        "algorithm": "sha3-256"
+      },
+      "error": {
+        "code": "invalid_hash",
+        "message": "Checksum has an invalid length or format."
+      }
+    },
+    "sha3-384": {
+      "normalize": [
+        {
+          "op": "lowercase"
+        }
+      ],
+      "validate": {
+        "op": "hash",
+        "algorithm": "sha3-384"
+      },
+      "error": {
+        "code": "invalid_hash",
+        "message": "Checksum has an invalid length or format."
+      }
+    },
+    "sha3-512": {
+      "normalize": [
+        {
+          "op": "lowercase"
+        }
+      ],
+      "validate": {
+        "op": "hash",
+        "algorithm": "sha3-512"
+      },
+      "error": {
+        "code": "invalid_hash",
+        "message": "Checksum has an invalid length or format."
+      }
+    },
+    "dom-hash": {
+      "normalize": [
+        {
+          "op": "lowercase"
+        }
+      ],
+      "validate": {
+        "op": "hash",
+        "algorithm": "dom-hash"
+      },
+      "error": {
+        "code": "invalid_hash",
+        "message": "Checksum has an invalid length or format."
+      }
+    },
+    "filename|sha1": {
+      "validate": {
+        "op": "composite",
+        "separator": "|",
+        "fields": [
+          {
+            "name": "filename",
+            "validate": {
+              "op": "string",
+              "min_length": 1,
+              "forbidden": [
+                "\n"
+              ]
+            }
+          },
+          {
+            "name": "hash",
+            "normalize": [
+              {
+                "op": "lowercase"
+              }
+            ],
+            "validate": {
+              "op": "hash",
+              "algorithm": "sha1"
+            }
+          }
+        ]
+      },
+      "error": {
+        "code": "invalid_filename_hash",
+        "message": "Invalid filename|sha1 value."
+      }
+    },
+    "filename|imphash": {
+      "validate": {
+        "op": "composite",
+        "separator": "|",
+        "fields": [
+          {
+            "name": "filename",
+            "validate": {
+              "op": "string",
+              "min_length": 1,
+              "forbidden": [
+                "\n"
+              ]
+            }
+          },
+          {
+            "name": "hash",
+            "normalize": [
+              {
+                "op": "lowercase"
+              }
+            ],
+            "validate": {
+              "op": "hash",
+              "algorithm": "imphash"
+            }
+          }
+        ]
+      },
+      "error": {
+        "code": "invalid_filename_hash",
+        "message": "Invalid filename|imphash value."
+      }
+    },
+    "filename|sha224": {
+      "validate": {
+        "op": "composite",
+        "separator": "|",
+        "fields": [
+          {
+            "name": "filename",
+            "validate": {
+              "op": "string",
+              "min_length": 1,
+              "forbidden": [
+                "\n"
+              ]
+            }
+          },
+          {
+            "name": "hash",
+            "normalize": [
+              {
+                "op": "lowercase"
+              }
+            ],
+            "validate": {
+              "op": "hash",
+              "algorithm": "sha224"
+            }
+          }
+        ]
+      },
+      "error": {
+        "code": "invalid_filename_hash",
+        "message": "Invalid filename|sha224 value."
+      }
+    },
+    "filename|sha256": {
+      "validate": {
+        "op": "composite",
+        "separator": "|",
+        "fields": [
+          {
+            "name": "filename",
+            "validate": {
+              "op": "string",
+              "min_length": 1,
+              "forbidden": [
+                "\n"
+              ]
+            }
+          },
+          {
+            "name": "hash",
+            "normalize": [
+              {
+                "op": "lowercase"
+              }
+            ],
+            "validate": {
+              "op": "hash",
+              "algorithm": "sha256"
+            }
+          }
+        ]
+      },
+      "error": {
+        "code": "invalid_filename_hash",
+        "message": "Invalid filename|sha256 value."
+      }
+    },
+    "filename|sha384": {
+      "validate": {
+        "op": "composite",
+        "separator": "|",
+        "fields": [
+          {
+            "name": "filename",
+            "validate": {
+              "op": "string",
+              "min_length": 1,
+              "forbidden": [
+                "\n"
+              ]
+            }
+          },
+          {
+            "name": "hash",
+            "normalize": [
+              {
+                "op": "lowercase"
+              }
+            ],
+            "validate": {
+              "op": "hash",
+              "algorithm": "sha384"
+            }
+          }
+        ]
+      },
+      "error": {
+        "code": "invalid_filename_hash",
+        "message": "Invalid filename|sha384 value."
+      }
+    },
+    "filename|sha512": {
+      "validate": {
+        "op": "composite",
+        "separator": "|",
+        "fields": [
+          {
+            "name": "filename",
+            "validate": {
+              "op": "string",
+              "min_length": 1,
+              "forbidden": [
+                "\n"
+              ]
+            }
+          },
+          {
+            "name": "hash",
+            "normalize": [
+              {
+                "op": "lowercase"
+              }
+            ],
+            "validate": {
+              "op": "hash",
+              "algorithm": "sha512"
+            }
+          }
+        ]
+      },
+      "error": {
+        "code": "invalid_filename_hash",
+        "message": "Invalid filename|sha512 value."
+      }
+    },
+    "filename|sha512/224": {
+      "validate": {
+        "op": "composite",
+        "separator": "|",
+        "fields": [
+          {
+            "name": "filename",
+            "validate": {
+              "op": "string",
+              "min_length": 1,
+              "forbidden": [
+                "\n"
+              ]
+            }
+          },
+          {
+            "name": "hash",
+            "normalize": [
+              {
+                "op": "lowercase"
+              }
+            ],
+            "validate": {
+              "op": "hash",
+              "algorithm": "sha512/224"
+            }
+          }
+        ]
+      },
+      "error": {
+        "code": "invalid_filename_hash",
+        "message": "Invalid filename|sha512/224 value."
+      }
+    },
+    "filename|sha512/256": {
+      "validate": {
+        "op": "composite",
+        "separator": "|",
+        "fields": [
+          {
+            "name": "filename",
+            "validate": {
+              "op": "string",
+              "min_length": 1,
+              "forbidden": [
+                "\n"
+              ]
+            }
+          },
+          {
+            "name": "hash",
+            "normalize": [
+              {
+                "op": "lowercase"
+              }
+            ],
+            "validate": {
+              "op": "hash",
+              "algorithm": "sha512/256"
+            }
+          }
+        ]
+      },
+      "error": {
+        "code": "invalid_filename_hash",
+        "message": "Invalid filename|sha512/256 value."
+      }
+    },
+    "filename|sha3-224": {
+      "validate": {
+        "op": "composite",
+        "separator": "|",
+        "fields": [
+          {
+            "name": "filename",
+            "validate": {
+              "op": "string",
+              "min_length": 1,
+              "forbidden": [
+                "\n"
+              ]
+            }
+          },
+          {
+            "name": "hash",
+            "normalize": [
+              {
+                "op": "lowercase"
+              }
+            ],
+            "validate": {
+              "op": "hash",
+              "algorithm": "sha3-224"
+            }
+          }
+        ]
+      },
+      "error": {
+        "code": "invalid_filename_hash",
+        "message": "Invalid filename|sha3-224 value."
+      }
+    },
+    "filename|sha3-256": {
+      "validate": {
+        "op": "composite",
+        "separator": "|",
+        "fields": [
+          {
+            "name": "filename",
+            "validate": {
+              "op": "string",
+              "min_length": 1,
+              "forbidden": [
+                "\n"
+              ]
+            }
+          },
+          {
+            "name": "hash",
+            "normalize": [
+              {
+                "op": "lowercase"
+              }
+            ],
+            "validate": {
+              "op": "hash",
+              "algorithm": "sha3-256"
+            }
+          }
+        ]
+      },
+      "error": {
+        "code": "invalid_filename_hash",
+        "message": "Invalid filename|sha3-256 value."
+      }
+    },
+    "filename|sha3-384": {
+      "validate": {
+        "op": "composite",
+        "separator": "|",
+        "fields": [
+          {
+            "name": "filename",
+            "validate": {
+              "op": "string",
+              "min_length": 1,
+              "forbidden": [
+                "\n"
+              ]
+            }
+          },
+          {
+            "name": "hash",
+            "normalize": [
+              {
+                "op": "lowercase"
+              }
+            ],
+            "validate": {
+              "op": "hash",
+              "algorithm": "sha3-384"
+            }
+          }
+        ]
+      },
+      "error": {
+        "code": "invalid_filename_hash",
+        "message": "Invalid filename|sha3-384 value."
+      }
+    },
+    "filename|sha3-512": {
+      "validate": {
+        "op": "composite",
+        "separator": "|",
+        "fields": [
+          {
+            "name": "filename",
+            "validate": {
+              "op": "string",
+              "min_length": 1,
+              "forbidden": [
+                "\n"
+              ]
+            }
+          },
+          {
+            "name": "hash",
+            "normalize": [
+              {
+                "op": "lowercase"
+              }
+            ],
+            "validate": {
+              "op": "hash",
+              "algorithm": "sha3-512"
+            }
+          }
+        ]
+      },
+      "error": {
+        "code": "invalid_filename_hash",
+        "message": "Invalid filename|sha3-512 value."
+      }
+    },
+    "filename|authentihash": {
+      "validate": {
+        "op": "composite",
+        "separator": "|",
+        "fields": [
+          {
+            "name": "filename",
+            "validate": {
+              "op": "string",
+              "min_length": 1,
+              "forbidden": [
+                "\n"
+              ]
+            }
+          },
+          {
+            "name": "hash",
+            "normalize": [
+              {
+                "op": "lowercase"
+              }
+            ],
+            "validate": {
+              "op": "hash",
+              "algorithm": "authentihash"
+            }
+          }
+        ]
+      },
+      "error": {
+        "code": "invalid_filename_hash",
+        "message": "Invalid filename|authentihash value."
+      }
+    },
+    "filename|pehash": {
+      "validate": {
+        "op": "composite",
+        "separator": "|",
+        "fields": [
+          {
+            "name": "filename",
+            "validate": {
+              "op": "string",
+              "min_length": 1,
+              "forbidden": [
+                "\n"
+              ]
+            }
+          },
+          {
+            "name": "hash",
+            "normalize": [
+              {
+                "op": "lowercase"
+              }
+            ],
+            "validate": {
+              "op": "hash",
+              "algorithm": "pehash"
+            }
+          }
+        ]
+      },
+      "error": {
+        "code": "invalid_filename_hash",
+        "message": "Invalid filename|pehash value."
       }
     }
   }

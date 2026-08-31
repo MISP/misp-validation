@@ -112,7 +112,10 @@ class RuleEngine:
             definition = self.hashes[rule["algorithm"]]
             if definition["encoding"] != "hex":
                 raise ValueError("Only hex hashes are supported by prototype")
-            return self._is_hex(value) and len(value) == definition["length"], value
+            lengths = definition["length"]
+            if isinstance(lengths, int):
+                lengths = [lengths]
+            return self._is_hex(value) and len(value) in lengths, value
 
         if op == "hex":
             return self._is_hex(value), value
