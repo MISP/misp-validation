@@ -1,0 +1,92 @@
+[
+  {
+    "type": "md5",
+    "input": "D41D8CD98F00B204E9800998ECF8427E",
+    "normalized": "d41d8cd98f00b204e9800998ecf8427e",
+    "valid": true
+  },
+  {
+    "type": "md5",
+    "input": "xyz",
+    "normalized": "xyz",
+    "valid": false
+  },
+  {
+    "type": "sha256",
+    "input": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "normalized": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "valid": true
+  },
+  {
+    "type": "port",
+    "input": "443",
+    "normalized": "443",
+    "valid": true
+  },
+  {
+    "type": "port",
+    "input": "65536",
+    "normalized": "65536",
+    "valid": false
+  },
+  {
+    "type": "weakness",
+    "input": "cwe–79",
+    "normalized": "CWE-79",
+    "valid": true
+  },
+  {
+    "type": "uuid",
+    "input": "550E8400-E29B-41D4-A716-446655440000",
+    "normalized": "550e8400-e29b-41d4-a716-446655440000",
+    "valid": true
+  },
+  {
+    "type": "onion-address",
+    "input": "abcdefghijklmnop.ONION",
+    "normalized": "abcdefghijklmnop.onion",
+    "valid": true
+  },
+  {
+    "type": "hex",
+    "input": "deadbeef",
+    "normalized": "DEADBEEF",
+    "valid": true
+  },
+  {
+    "type": "integer",
+    "input": "-42",
+    "normalized": "-42",
+    "valid": true
+  },
+  {
+    "type": "boolean",
+    "input": "1",
+    "normalized": "1",
+    "valid": true
+  },
+  {
+    "type": "boolean",
+    "input": "true",
+    "normalized": "1",
+    "valid": true
+  },
+  {
+    "type": "ip-src",
+    "input": "2001:0db8:0:0:0:0:0:1/128",
+    "normalized": "2001:db8::1",
+    "valid": true
+  },
+  {
+    "type": "filename|md5",
+    "input": "malware.exe|D41D8CD98F00B204E9800998ECF8427E",
+    "normalized": "malware.exe|d41d8cd98f00b204e9800998ecf8427e",
+    "valid": true
+  },
+  {
+    "type": "boolean",
+    "input": " false ",
+    "normalized": "0",
+    "valid": true
+  }
+]

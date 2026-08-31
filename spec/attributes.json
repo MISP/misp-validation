@@ -1,0 +1,233 @@
+{
+  "spec_version": "0.1",
+  "source": {
+    "project": "MISP",
+    "repository": "MISP/MISP",
+    "commit": "843b67445060e4da71ebf75cc4a9646c301f749d",
+    "file": "app/Lib/Tools/AttributeValidationTool.php"
+  },
+  "defaults": {
+    "normalize": [
+      {
+        "op": "replace_non_bmp",
+        "replacement": "?"
+      }
+    ]
+  },
+  "definitions": {
+    "hashes": {
+      "md5": {
+        "encoding": "hex",
+        "length": 32
+      },
+      "sha1": {
+        "encoding": "hex",
+        "length": 40
+      },
+      "sha256": {
+        "encoding": "hex",
+        "length": 64
+      }
+    }
+  },
+  "types": {
+    "md5": {
+      "normalize": [
+        {
+          "op": "lowercase"
+        }
+      ],
+      "validate": {
+        "op": "hash",
+        "algorithm": "md5"
+      },
+      "error": {
+        "code": "invalid_hash",
+        "message": "Checksum has an invalid length or format."
+      }
+    },
+    "sha1": {
+      "normalize": [
+        {
+          "op": "lowercase"
+        }
+      ],
+      "validate": {
+        "op": "hash",
+        "algorithm": "sha1"
+      },
+      "error": {
+        "code": "invalid_hash",
+        "message": "Checksum has an invalid length or format."
+      }
+    },
+    "sha256": {
+      "normalize": [
+        {
+          "op": "lowercase"
+        }
+      ],
+      "validate": {
+        "op": "hash",
+        "algorithm": "sha256"
+      },
+      "error": {
+        "code": "invalid_hash",
+        "message": "Checksum has an invalid length or format."
+      }
+    },
+    "port": {
+      "validate": {
+        "op": "integer",
+        "min": 1,
+        "max": 65535
+      },
+      "error": {
+        "code": "invalid_port",
+        "message": "Port numbers have to be integers between 1 and 65535."
+      }
+    },
+    "weakness": {
+      "normalize": [
+        {
+          "op": "replace",
+          "old": "–",
+          "new": "-"
+        },
+        {
+          "op": "uppercase"
+        }
+      ],
+      "validate": {
+        "op": "regex",
+        "pattern": "^CWE-[0-9]+$"
+      },
+      "error": {
+        "code": "invalid_weakness",
+        "message": "Invalid format. Expected: CWE-x..."
+      }
+    },
+    "uuid": {
+      "normalize": [
+        {
+          "op": "lowercase"
+        }
+      ],
+      "validate": {
+        "op": "regex",
+        "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+      },
+      "error": {
+        "code": "invalid_uuid",
+        "message": "Invalid UUID format."
+      }
+    },
+    "onion-address": {
+      "normalize": [
+        {
+          "op": "lowercase"
+        }
+      ],
+      "validate": {
+        "op": "regex",
+        "pattern": "^([a-z2-7]{16}|[a-z2-7]{56})\\.onion$"
+      },
+      "error": {
+        "code": "invalid_onion_address",
+        "message": "Onion address has an invalid format."
+      }
+    },
+    "hex": {
+      "normalize": [
+        {
+          "op": "uppercase"
+        }
+      ],
+      "validate": {
+        "op": "hex"
+      },
+      "error": {
+        "code": "invalid_hex",
+        "message": "Value must contain only hexadecimal characters."
+      }
+    },
+    "integer": {
+      "validate": {
+        "op": "integer"
+      },
+      "error": {
+        "code": "invalid_integer",
+        "message": "The value has to be an integer value."
+      }
+    },
+    "boolean": {
+      "validate": {
+        "op": "boolean"
+      },
+      "error": {
+        "code": "invalid_boolean",
+        "message": "The value has to be boolean."
+      },
+      "normalize": [
+        {
+          "op": "trim"
+        },
+        {
+          "op": "lowercase"
+        },
+        {
+          "op": "normalize_boolean"
+        }
+      ]
+    },
+    "ip-src": {
+      "normalize": [
+        {
+          "op": "normalize_ip"
+        }
+      ],
+      "validate": {
+        "op": "ip",
+        "allow_cidr": true
+      },
+      "error": {
+        "code": "invalid_ip",
+        "message": "IP address has an invalid format."
+      }
+    },
+    "filename|md5": {
+      "validate": {
+        "op": "composite",
+        "separator": "|",
+        "fields": [
+          {
+            "name": "filename",
+            "validate": {
+              "op": "string",
+              "min_length": 1,
+              "forbidden": [
+                "\n"
+              ]
+            }
+          },
+          {
+            "name": "hash",
+            "normalize": [
+              {
+                "op": "lowercase"
+              }
+            ],
+            "validate": {
+              "op": "hash",
+              "algorithm": "md5"
+            }
+          }
+        ]
+      },
+      "error": {
+        "code": "invalid_filename_md5",
+        "message": "Invalid filename|md5 value."
+      }
+    }
+  }
+}

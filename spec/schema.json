@@ -1,0 +1,245 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://misp-project.org/schemas/attribute-validation-rules.schema.json",
+  "title": "MISP Attribute Validation Rule Language",
+  "type": "object",
+  "required": [
+    "spec_version",
+    "source",
+    "defaults",
+    "definitions",
+    "types"
+  ],
+  "properties": {
+    "spec_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+$"
+    },
+    "source": {
+      "type": "object",
+      "required": [
+        "project",
+        "repository",
+        "commit",
+        "file"
+      ],
+      "properties": {
+        "project": {
+          "type": "string"
+        },
+        "repository": {
+          "type": "string"
+        },
+        "commit": {
+          "type": "string"
+        },
+        "file": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "definitions": {
+      "type": "object",
+      "properties": {
+        "hashes": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "required": [
+              "encoding",
+              "length"
+            ],
+            "properties": {
+              "encoding": {
+                "enum": [
+                  "hex"
+                ]
+              },
+              "length": {
+                "type": "integer",
+                "minimum": 1
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "types": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/typeRule"
+      }
+    },
+    "defaults": {
+      "type": "object",
+      "properties": {
+        "normalize": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/normalizer"
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$defs": {
+    "normalizer": {
+      "type": "object",
+      "required": [
+        "op"
+      ],
+      "properties": {
+        "op": {
+          "enum": [
+            "lowercase",
+            "uppercase",
+            "replace",
+            "replace_non_bmp",
+            "normalize_ip",
+            "strip_prefix",
+            "asdot_to_asplain",
+            "trim",
+            "normalize_boolean"
+          ]
+        },
+        "old": {
+          "type": "string"
+        },
+        "new": {
+          "type": "string"
+        },
+        "replacement": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        },
+        "case_insensitive": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "validator": {
+      "type": "object",
+      "required": [
+        "op"
+      ],
+      "properties": {
+        "op": {
+          "enum": [
+            "hash",
+            "hex",
+            "regex",
+            "integer",
+            "boolean",
+            "ip",
+            "string",
+            "composite"
+          ]
+        },
+        "algorithm": {
+          "type": "string"
+        },
+        "length": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "min": {
+          "type": "integer"
+        },
+        "max": {
+          "type": "integer"
+        },
+        "pattern": {
+          "type": "string"
+        },
+        "case_insensitive": {
+          "type": "boolean"
+        },
+        "allow_cidr": {
+          "type": "boolean"
+        },
+        "min_length": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "forbidden": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "separator": {
+          "type": "string",
+          "minLength": 1
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "name",
+              "validate"
+            ],
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "normalize": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/normalizer"
+                }
+              },
+              "validate": {
+                "$ref": "#/$defs/validator"
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "typeRule": {
+      "type": "object",
+      "required": [
+        "validate"
+      ],
+      "properties": {
+        "normalize": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/normalizer"
+          }
+        },
+        "validate": {
+          "$ref": "#/$defs/validator"
+        },
+        "error": {
+          "type": "object",
+          "required": [
+            "code",
+            "message"
+          ],
+          "properties": {
+            "code": {
+              "type": "string"
+            },
+            "message": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
