@@ -114,6 +114,11 @@ final class RuleEngine
                     'false' => '0',
                     default => $value,
                 },
+                'regex_replace' => preg_replace('~' . str_replace('~', '\\~', $operation['pattern']) . '~u', $operation['replacement'] ?? '', $value) ?? $value,
+                'normalize_mac' => implode(':', str_split(str_replace(['.', ':', '-', ' '], '', strtolower($value)), 2)),
+                'normalize_phone' => $this->normalizePhone($value),
+                'normalize_ip_port' => $this->normalizeIpPort($value),
+                'normalize_datetime' => $this->normalizeDateTime($value),
                 'normalize_vulnerability' => $this->normalizeVulnerability($value),
                 'normalize_ip' => $this->normalizeIp($value),
                 'strip_prefix' => $this->stripPrefix($value, $operation),
@@ -128,6 +133,15 @@ final class RuleEngine
     private function validateRule(array $rule, string $value): array
     {
         switch ($rule['op']) {
+            case 'any':
+                return [true, $value];
+            case 'numeric':
+                return [is_numeric($value), $value];
+            case 'json':
+                json_decode($value);
+                return [json_last_error() === JSON_ERROR_NONE, $value];
+            case 'url':
+                return [preg_match('/^https?:\\/\\//i', $value) === 1 && filter_var($value, FILTER_VALIDATE_URL) !== false, $value];
             case 'hash':
                 $definition = $this->hashes[$rule['algorithm']];
                 if ($definition['encoding'] !== 'hex') {
@@ -159,6 +173,9 @@ final class RuleEngine
                 return [$this->isIp($value, !empty($rule['allow_cidr'])), $value];
             case 'string':
                 if (mb_strlen($value, 'UTF-8') < ($rule['min_length'] ?? 0)) {
+                    return [false, $value];
+                }
+                if (isset($rule['max_length']) && mb_strlen($value, 'UTF-8') > $rule['max_length']) {
                     return [false, $value];
                 }
                 foreach ($rule['forbidden'] ?? [] as $token) {
@@ -279,5 +296,38 @@ final class RuleEngine
         $value = str_replace('–', '-', $value);
         $source = explode('-', $value, 2)[0];
         return in_array(strtolower($source), ['cve', 'gcve'], true) ? strtoupper($value) : $value;
+    }
+
+    private static function normalizePhone(string $value): string
+    {
+        if (str_starts_with($value, '00')) {
+            $value = '+' . substr($value, 2);
+        }
+        $value = preg_replace('/\\(0\\)/', '', $value) ?? $value;
+        return preg_replace('/[^+0-9]+/', '', $value) ?? $value;
+    }
+
+    private static function normalizeIpPort(string $value): string
+    {
+        if (preg_match('/^\\[([^]]+)]:(.*)$/', $value, $matches) === 1) {
+            return self::normalizeIp($matches[1]) . '|' . $matches[2];
+        }
+        foreach (['|', ' port ', 'p', '#'] as $separator) {
+            $position = strrpos($value, $separator);
+            if ($position !== false) {
+                return self::normalizeIp(substr($value, 0, $position)) . '|' . substr($value, $position + strlen($separator));
+            }
+        }
+        $position = strrpos($value, ':');
+        return $position === false ? $value : self::normalizeIp(substr($value, 0, $position)) . '|' . substr($value, $position + 1);
+    }
+
+    private static function normalizeDateTime(string $value): string
+    {
+        try {
+            return (new DateTimeImmutable($value, new \DateTimeZone('GMT')))->format('Y-m-d\\TH:i:s.uO');
+        } catch (\Exception) {
+            return $value;
+        }
     }
 }

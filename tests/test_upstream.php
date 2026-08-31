@@ -17,21 +17,13 @@ function __(string $message, mixed ...$arguments): string
 require $argv[1];
 
 $vectors = json_decode(file_get_contents(__DIR__ . '/vectors.json'), true, flags: JSON_THROW_ON_ERROR);
-$knownDifferences = [
-    // Upstream canonicalizes datetimes through DateTime; the portable rules
-    // preserve valid input and deliberately reject rollover dates.
-    'datetime|2024-02-29T12:34:56Z',
-    'datetime|2023-02-29T12:34:56Z',
-    // The pinned source lowercases x509 fingerprints; the current JSON rule
-    // only describes validation for this type.
-    'x509-fingerprint-sha256|AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
-];
+$knownDifferences = [];
 
 $differences = [];
 foreach ($vectors as $vector) {
     $normalized = AttributeValidationTool::modifyBeforeValidation($vector['type'], $vector['input']);
     $valid = AttributeValidationTool::validate($vector['type'], $normalized) === true;
-    if ($normalized !== $vector['normalized'] || $valid !== $vector['valid']) {
+    if ((string) $normalized !== $vector['normalized'] || $valid !== $vector['valid']) {
         $differences[] = $vector['type'] . '|' . $vector['input'];
     }
 }
@@ -39,6 +31,22 @@ foreach ($vectors as $vector) {
 sort($differences);
 sort($knownDifferences);
 assert($differences === $knownDifferences, 'Unexpected difference from the pinned MISP validator');
+
+// Keep every explicit upstream switch case in the portable specification,
+// including types whose upstream validation is an unconditional `true`.
+$source = file_get_contents($argv[1]);
+$validateStart = strpos($source, 'public static function validate(');
+$validateEnd = strpos($source, 'public static function validTypesForValue', $validateStart);
+$validateSource = substr($source, $validateStart, $validateEnd - $validateStart);
+preg_match_all("/case '([^']+)'/", $validateSource, $matches);
+$upstreamTypes = array_values(array_unique($matches[1]));
+// This name occurs solely in a commented-out legacy block.
+$upstreamTypes = array_values(array_diff($upstreamTypes, ['targeted-threat-index']));
+$spec = json_decode(file_get_contents(__DIR__ . '/../spec/attributes.json'), true, flags: JSON_THROW_ON_ERROR);
+$specTypes = array_keys($spec['types']);
+sort($upstreamTypes);
+sort($specTypes);
+assert($specTypes === $upstreamTypes, 'Portable type list differs from the pinned MISP validator');
 
 echo 'OK: pinned MISP source executed all ' . count($vectors)
     . ' vectors (' . count($differences) . " documented semantic differences)\n";

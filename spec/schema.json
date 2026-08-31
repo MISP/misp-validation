@@ -118,7 +118,12 @@
             "trim",
             "trim_chars",
             "normalize_vulnerability",
-            "normalize_boolean"
+            "normalize_boolean",
+            "regex_replace",
+            "normalize_mac",
+            "normalize_phone",
+            "normalize_ip_port",
+            "normalize_datetime"
           ]
         },
         "old": {
@@ -137,6 +142,9 @@
           "type": "boolean"
         },
         "characters": {
+          "type": "string"
+        },
+        "pattern": {
           "type": "string"
         }
       },
@@ -159,7 +167,11 @@
             "string",
             "datetime",
             "ssh_fingerprint",
-            "composite"
+            "composite",
+            "any",
+            "numeric",
+            "json",
+            "url"
           ]
         },
         "algorithm": {
@@ -185,6 +197,10 @@
           "type": "boolean"
         },
         "min_length": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "max_length": {
           "type": "integer",
           "minimum": 0
         },

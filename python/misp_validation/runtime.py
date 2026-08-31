@@ -3,13 +3,14 @@ from __future__ import annotations
 import base64
 import binascii
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from importlib.resources import files
 from ipaddress import ip_address, ip_network
 import json
 from pathlib import Path
 import re
 from typing import Any
+from urllib.parse import urlparse
 
 
 @dataclass(frozen=True)
@@ -97,6 +98,43 @@ class RuleEngine:
                     # nuanced; the portable rule language will define the
                     # accepted textual input explicitly as this evolves.
                     value = value
+            elif op == "regex_replace":
+                value = re.sub(operation["pattern"], operation.get("replacement", ""), value)
+            elif op == "normalize_mac":
+                compact = re.sub(r"[. :\-]", "", value.lower())
+                value = ":".join(compact[i : i + 2] for i in range(0, len(compact), 2))
+            elif op == "normalize_phone":
+                if value.startswith("00"):
+                    value = "+" + value[2:]
+                value = re.sub(r"\(0\)", "", value)
+                value = re.sub(r"[^+0-9]+", "", value)
+            elif op == "normalize_ip_port":
+                value = self._normalize_ip_port(value)
+            elif op == "normalize_datetime":
+                try:
+                    parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+                    value = parsed.strftime("%Y-%m-%dT%H:%M:%S.%f%z")
+                except ValueError:
+                    # PHP DateTime rolls overflowing calendar days into the
+                    # following month (for example, February 29 in 2023).
+                    match = re.fullmatch(
+                        r"(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2}):(\d{2})(?:\.\d+)?(Z|[+-]\d{2}:?\d{2})?",
+                        value,
+                    )
+                    if match:
+                        year, month, day, hour, minute, second = map(int, match.groups()[:6])
+                        zone_text = match.group(7)
+                        zone = timezone.utc
+                        if zone_text and zone_text != "Z":
+                            sign = 1 if zone_text[0] == "+" else -1
+                            offset = zone_text[1:].replace(":", "")
+                            zone = timezone(sign * timedelta(hours=int(offset[:2]), minutes=int(offset[2:])))
+                        try:
+                            parsed = datetime(year, month, 1, hour, minute, second, tzinfo=zone)
+                            parsed += timedelta(days=day - 1)
+                            value = parsed.strftime("%Y-%m-%dT%H:%M:%S.%f%z")
+                        except ValueError:
+                            pass
             elif op == "normalize_vulnerability":
                 value = value.replace("–", "-")
                 if value.split("-", 1)[0].lower() in ("cve", "gcve"):
@@ -120,6 +158,23 @@ class RuleEngine:
 
     def _validate_rule(self, rule: dict[str, Any], value: str) -> tuple[bool, str]:
         op = rule["op"]
+
+        if op == "any":
+            return True, value
+
+        if op == "numeric":
+            return re.fullmatch(r"[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?", value) is not None, value
+
+        if op == "json":
+            try:
+                json.loads(value)
+                return True, value
+            except (ValueError, TypeError):
+                return False, value
+
+        if op == "url":
+            parsed = urlparse(value)
+            return parsed.scheme.lower() in ("http", "https") and bool(parsed.netloc), value
 
         if op == "hash":
             definition = self.hashes[rule["algorithm"]]
@@ -164,6 +219,8 @@ class RuleEngine:
 
         if op == "string":
             if len(value) < rule.get("min_length", 0):
+                return False, value
+            if "max_length" in rule and len(value) > rule["max_length"]:
                 return False, value
             for token in rule.get("forbidden", []):
                 if token in value:
@@ -232,3 +289,20 @@ class RuleEngine:
             return ip_address(value).compressed
         except ValueError:
             return value
+
+    @classmethod
+    def _normalize_ip_port(cls, value: str) -> str:
+        if value.startswith("[") and "]" in value:
+            end = value.index("]")
+            return f"{cls._normalize_ip(value[1:end])}|{value[end + 1:].lstrip(':')}"
+        for separator in ("|", " port ", "p", "#"):
+            if separator in value:
+                host, port = value.rsplit(separator, 1)
+                return f"{cls._normalize_ip(host)}|{port}"
+        if value.count(":") >= 2:
+            host, port = value.rsplit(":", 1)
+            return f"{cls._normalize_ip(host)}|{port}"
+        if ":" in value:
+            host, port = value.split(":", 1)
+            return f"{cls._normalize_ip(host)}|{port}"
+        return value
