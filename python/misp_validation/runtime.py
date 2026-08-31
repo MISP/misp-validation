@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+import base64
+import binascii
 from dataclasses import dataclass
+from datetime import datetime
 from ipaddress import ip_address, ip_network
 import json
 from pathlib import Path
@@ -62,6 +65,8 @@ class RuleEngine:
                 value = value.lower()
             elif op == "trim":
                 value = value.strip()
+            elif op == "trim_chars":
+                value = value.strip(operation["characters"])
             elif op == "uppercase":
                 value = value.upper()
             elif op == "replace":
@@ -79,6 +84,10 @@ class RuleEngine:
                     # nuanced; the portable rule language will define the
                     # accepted textual input explicitly as this evolves.
                     value = value
+            elif op == "normalize_vulnerability":
+                value = value.replace("–", "-")
+                if value.split("-", 1)[0].lower() in ("cve", "gcve"):
+                    value = value.upper()
             elif op == "normalize_ip":
                 value = self._normalize_ip(value)
             elif op == "strip_prefix":
@@ -144,6 +153,34 @@ class RuleEngine:
                 if token in value:
                     return False, value
             return True, value
+
+        if op == "datetime":
+            # Keep the accepted syntax deliberately narrower than Python's
+            # parser: the portable specification promises ISO 8601 values.
+            if re.fullmatch(
+                r"\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:?\d{2})?",
+                value,
+            ) is None:
+                return False, value
+            try:
+                datetime.fromisoformat(value.replace("Z", "+00:00"))
+                return True, value
+            except ValueError:
+                return False, value
+
+        if op == "ssh_fingerprint":
+            if value.startswith("SHA256:"):
+                encoded = value[7:]
+                try:
+                    padding = "=" * (-len(encoded) % 4)
+                    decoded = base64.b64decode(encoded + padding, validate=True)
+                    return len(decoded) == 32, value
+                except (ValueError, binascii.Error):
+                    return False, value
+
+            digest = value[4:] if value.startswith("MD5:") else value
+            digest = digest.replace(":", "")
+            return self._is_hex(digest) and len(digest) == 32, value
 
         if op == "composite":
             separator = rule["separator"]

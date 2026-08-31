@@ -91,7 +91,7 @@
       "normalize": [
         {
           "op": "replace",
-          "old": "–",
+          "old": "\u2013",
           "new": "-"
         },
         {
@@ -227,6 +227,193 @@
       "error": {
         "code": "invalid_filename_md5",
         "message": "Invalid filename|md5 value."
+      }
+    },
+    "domain": {
+      "normalize": [
+        {
+          "op": "lowercase"
+        },
+        {
+          "op": "trim_chars",
+          "characters": "."
+        }
+      ],
+      "validate": {
+        "op": "regex",
+        "pattern": "^[A-Z0-9.\\-_]+\\.[A-Z0-9\\-]{2,}$",
+        "case_insensitive": true
+      },
+      "error": {
+        "code": "invalid_domain",
+        "message": "Domain has an invalid format."
+      }
+    },
+    "hostname": {
+      "normalize": [
+        {
+          "op": "lowercase"
+        }
+      ],
+      "validate": {
+        "op": "regex",
+        "pattern": "^[A-Z0-9.\\-_]+\\.[A-Z0-9\\-]{2,}$",
+        "case_insensitive": true
+      },
+      "error": {
+        "code": "invalid_hostname",
+        "message": "Hostname has an invalid format."
+      }
+    },
+    "url": {
+      "validate": {
+        "op": "string",
+        "forbidden": [
+          "\n"
+        ]
+      },
+      "error": {
+        "code": "invalid_url",
+        "message": "URL must not contain a new line character."
+      }
+    },
+    "email": {
+      "normalize": [
+        {
+          "op": "lowercase"
+        }
+      ],
+      "validate": {
+        "op": "regex",
+        "pattern": "^.[^\\s]*@.*\\..*$",
+        "case_insensitive": true
+      },
+      "error": {
+        "code": "invalid_email",
+        "message": "Email address has an invalid format."
+      }
+    },
+    "email-src": {
+      "normalize": [
+        {
+          "op": "lowercase"
+        }
+      ],
+      "validate": {
+        "op": "regex",
+        "pattern": "^.[^\\s]*@.*\\..*$",
+        "case_insensitive": true
+      },
+      "error": {
+        "code": "invalid_email",
+        "message": "Email address has an invalid format."
+      }
+    },
+    "email-dst": {
+      "normalize": [
+        {
+          "op": "lowercase"
+        }
+      ],
+      "validate": {
+        "op": "regex",
+        "pattern": "^.[^\\s]*@.*\\..*$",
+        "case_insensitive": true
+      },
+      "error": {
+        "code": "invalid_email",
+        "message": "Email address has an invalid format."
+      }
+    },
+    "target-email": {
+      "normalize": [
+        {
+          "op": "lowercase"
+        }
+      ],
+      "validate": {
+        "op": "regex",
+        "pattern": "^.[^\\s]*@.*\\..*$",
+        "case_insensitive": true
+      },
+      "error": {
+        "code": "invalid_email",
+        "message": "Email address has an invalid format."
+      }
+    },
+    "whois-registrant-email": {
+      "normalize": [
+        {
+          "op": "lowercase"
+        }
+      ],
+      "validate": {
+        "op": "regex",
+        "pattern": "^.[^\\s]*@.*\\..*$",
+        "case_insensitive": true
+      },
+      "error": {
+        "code": "invalid_email",
+        "message": "Email address has an invalid format."
+      }
+    },
+    "datetime": {
+      "validate": {
+        "op": "datetime"
+      },
+      "error": {
+        "code": "invalid_datetime",
+        "message": "Datetime has to be in the ISO 8601 format."
+      }
+    },
+    "ssdeep": {
+      "validate": {
+        "op": "regex",
+        "pattern": "^[0-9]+:[0-9a-zA-Z/+]*:[0-9a-zA-Z/+]*$"
+      },
+      "error": {
+        "code": "invalid_ssdeep",
+        "message": "Invalid SSDeep hash. The format has to be blocksize:hash:hash."
+      }
+    },
+    "tlsh": {
+      "normalize": [
+        {
+          "op": "lowercase"
+        }
+      ],
+      "validate": {
+        "op": "regex",
+        "pattern": "^t?[0-9a-f]{36,}$"
+      },
+      "error": {
+        "code": "invalid_tlsh",
+        "message": "TLSH hash has an invalid length or format."
+      }
+    },
+    "ssh-fingerprint": {
+      "validate": {
+        "op": "ssh_fingerprint"
+      },
+      "error": {
+        "code": "invalid_ssh_fingerprint",
+        "message": "SSH fingerprint must be in MD5 or SHA256 format."
+      }
+    },
+    "vulnerability": {
+      "normalize": [
+        {
+          "op": "normalize_vulnerability"
+        }
+      ],
+      "validate": {
+        "op": "regex",
+        "pattern": "^(CVE-\\d{4}-\\d{4,}|GCVE-\\d+-\\d{4}-\\d+|fkie_cve-\\d{4}-\\d{4,}|ghsa-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}|pysec-\\d{4}-\\d{2,5}|gsd-\\d{4}-\\d{4,5}|mal-\\d{4}-\\d+|wid-sec-w-\\d{4}-\\d{4}|ncsc-\\d{4}-\\d{4}|ssa-\\d{6}|rh(ba|ea|sa)-\\d{4}:\\d{4,}|ics(ma|a)-\\d{2}-\\d{3}-\\d{2}|va-\\d{2}-\\d{3}-\\d{2}|cisco-sa(-[a-zA-Z0-9_]+)+|sca-\\d{4}-\\d{4,}|nn-\\d{4}[:_]\\d-\\d{2}|oxas-adv-\\d{4}-\\d{4}|msrc_cve-\\d{4}-\\d{4,}|var-\\d{6}-\\d{4}|jvndb-\\d{4}-\\d{6}|ts-\\d{4}-\\d{4}|(open)?suse-su-\\d{4}:\\d{4,}-\\d|cnvd-\\d{4}-\\d{5}|certfr-\\d{4}-avi-\\d{4}|certfr-\\d{4}-ale-\\d{3})$",
+        "case_insensitive": true
+      },
+      "error": {
+        "code": "invalid_vulnerability",
+        "message": "Invalid vulnerability ID format."
       }
     }
   }
