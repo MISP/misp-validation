@@ -16,17 +16,20 @@ This prototype intentionally separates:
 - `spec/attributes.json` — initial rules derived from MISP `AttributeValidationTool.php`.
 - `python/misp_validation/runtime.py` — Python interpreter for the rule language.
 - `php/MispValidation/RuleEngine.php` — PHP interpreter with the same public operations.
+- `typescript/src/index.ts` — TypeScript interpreter with the same public operations.
 - `tests/vectors.json` — language-independent conformance vectors.
-- `tests/test_runtime.py` and `tests/test_runtime.php` — conformance runners for both runtimes.
+- Runtime tests execute the same vectors in Python, PHP, and TypeScript.
 
 ## Run
 
 ```bash
 python tests/test_runtime.py
 php -d zend.assertions=1 -d assert.exception=1 tests/test_runtime.php
+npm install
+npm test
 ```
 
-Both runtimes are checked against the same vectors. The pinned upstream MISP
+All runtimes are checked against the same vectors. The pinned upstream MISP
 source can also be executed as an oracle (rather than vendoring it):
 
 ```bash
@@ -73,6 +76,18 @@ The upload command uses the PyPI credentials configured for Twine. Increment
 the version in `pyproject.toml` before publishing a new release because PyPI
 does not allow an existing release file to be replaced.
 
+## Use the TypeScript package
+
+```typescript
+import { RuleEngine } from "misp-validation";
+
+const engine = RuleEngine.fromDefaultSpec();
+const result = engine.validate("md5", "d41d8cd98f00b204e9800998ecf8427e");
+console.assert(result.valid);
+```
+
+The npm package includes compiled declarations and the default attribute specification.
+
 ## Design rule
 
 The JSON must describe semantics, never Python/PHP/Go/Rust code. For example:
@@ -89,4 +104,4 @@ A backend/runtime decides how `lowercase` and `hash` are implemented.
 ## Next steps
 
 - Formalize portable regex semantics.
-- Add a second runtime (Go or TypeScript) early to verify language independence.
+- Add more runtimes early to keep verifying language independence.
