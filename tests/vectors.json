@@ -140,14 +140,14 @@
   {
     "type": "datetime",
     "input": "2024-02-29T12:34:56Z",
-    "normalized": "2024-02-29T12:34:56Z",
+    "normalized": "2024-02-29T12:34:56.000000+0000",
     "valid": true
   },
   {
     "type": "datetime",
     "input": "2023-02-29T12:34:56Z",
-    "normalized": "2023-02-29T12:34:56Z",
-    "valid": false
+    "normalized": "2023-03-01T12:34:56.000000+0000",
+    "valid": true
   },
   {
     "type": "ssdeep",
@@ -296,7 +296,7 @@
   {
     "type": "x509-fingerprint-sha256",
     "input": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-    "normalized": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "normalized": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
     "valid": true
   },
   {
@@ -322,5 +322,83 @@
     "input": "sample.bin|bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
     "normalized": "sample.bin|bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
     "valid": false
+  },
+  {
+    "type": "other",
+    "input": "anything\nallowed",
+    "normalized": "anything\nallowed",
+    "valid": true
+  },
+  {
+    "type": "filename",
+    "input": "bad\nname",
+    "normalized": "bad\nname",
+    "valid": false
+  },
+  {
+    "type": "link",
+    "input": "https://example.com/path",
+    "normalized": "https://example.com/path",
+    "valid": true
+  },
+  {
+    "type": "link",
+    "input": "ftp://example.com",
+    "normalized": "ftp://example.com",
+    "valid": false
+  },
+  {
+    "type": "mac-address",
+    "input": "AA-BB-CC-DD-EE-FF",
+    "normalized": "aa:bb:cc:dd:ee:ff",
+    "valid": true
+  },
+  {
+    "type": "phone-number",
+    "input": "0044 (0) 20 1234",
+    "normalized": "+44201234",
+    "valid": true
+  },
+  {
+    "type": "iban",
+    "input": "gb82 west 1234",
+    "normalized": "GB82WEST1234",
+    "valid": true
+  },
+  {
+    "type": "AS",
+    "input": "AS1.10",
+    "normalized": "65546",
+    "valid": true
+  },
+  {
+    "type": "hostname|port",
+    "input": "WWW.Example.COM:443",
+    "normalized": "www.example.com|443",
+    "valid": true
+  },
+  {
+    "type": "domain|ip",
+    "input": "Example.COM|2001:db8::1",
+    "normalized": "example.com|2001:db8::1",
+    "valid": true
+  },
+  {
+    "type": "ip-dst|port",
+    "input": "[2001:0db8::1]:443",
+    "normalized": "2001:db8::1|443",
+    "valid": true
+  },
+  {
+    "type": "filename|vhash",
+    "input": "Sample.EXE|VALUE",
+    "normalized": "Sample.EXE|value",
+    "valid": true
+  },
+  {
+    "type": "chrome-extension-id",
+    "input": "abcdefghijklmnopabcdefghijklmnop",
+    "normalized": "abcdefghijklmnopabcdefghijklmnop",
+    "valid": true
   }
 ]

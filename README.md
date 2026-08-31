@@ -36,8 +36,9 @@ php -d zend.assertions=1 -d assert.exception=1 \
   tests/test_upstream.php /tmp/AttributeValidationTool.php
 ```
 
-The oracle runner documents the three intentional differences in the current
-prototype: stricter/preserved datetimes and x509 fingerprint normalization.
+The oracle runner also verifies that normalization and validation vectors have
+no known differences and that every upstream type is present, including types
+that MISP accepts without a type-specific validation rule.
 
 ## Install the Python package
 

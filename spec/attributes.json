@@ -1,5 +1,5 @@
 {
-  "spec_version": "0.1",
+  "spec_version": "0.2",
   "source": {
     "project": "MISP",
     "repository": "MISP/MISP",
@@ -182,7 +182,7 @@
       "normalize": [
         {
           "op": "replace",
-          "old": "\u2013",
+          "old": "–",
           "new": "-"
         },
         {
@@ -295,10 +295,7 @@
             "name": "filename",
             "validate": {
               "op": "string",
-              "min_length": 1,
-              "forbidden": [
-                "\n"
-              ]
+              "min_length": 1
             }
           },
           {
@@ -364,8 +361,8 @@
         ]
       },
       "error": {
-        "code": "invalid_url",
-        "message": "URL must not contain a new line character."
+        "code": "newline_not_allowed",
+        "message": "Value must not contain new line character."
       }
     },
     "email": {
@@ -455,7 +452,12 @@
       "error": {
         "code": "invalid_datetime",
         "message": "Datetime has to be in the ISO 8601 format."
-      }
+      },
+      "normalize": [
+        {
+          "op": "normalize_datetime"
+        }
+      ]
     },
     "ssdeep": {
       "validate": {
@@ -570,7 +572,17 @@
       "error": {
         "code": "invalid_hash",
         "message": "Checksum has an invalid length or format."
-      }
+      },
+      "normalize": [
+        {
+          "op": "replace",
+          "old": ":",
+          "new": ""
+        },
+        {
+          "op": "lowercase"
+        }
+      ]
     },
     "x509-fingerprint-sha1": {
       "validate": {
@@ -580,7 +592,17 @@
       "error": {
         "code": "invalid_hash",
         "message": "Checksum has an invalid length or format."
-      }
+      },
+      "normalize": [
+        {
+          "op": "replace",
+          "old": ":",
+          "new": ""
+        },
+        {
+          "op": "lowercase"
+        }
+      ]
     },
     "x509-fingerprint-sha256": {
       "validate": {
@@ -590,7 +612,17 @@
       "error": {
         "code": "invalid_hash",
         "message": "Checksum has an invalid length or format."
-      }
+      },
+      "normalize": [
+        {
+          "op": "replace",
+          "old": ":",
+          "new": ""
+        },
+        {
+          "op": "lowercase"
+        }
+      ]
     },
     "ja3-fingerprint-md5": {
       "normalize": [
@@ -826,10 +858,7 @@
             "name": "filename",
             "validate": {
               "op": "string",
-              "min_length": 1,
-              "forbidden": [
-                "\n"
-              ]
+              "min_length": 1
             }
           },
           {
@@ -860,10 +889,7 @@
             "name": "filename",
             "validate": {
               "op": "string",
-              "min_length": 1,
-              "forbidden": [
-                "\n"
-              ]
+              "min_length": 1
             }
           },
           {
@@ -894,10 +920,7 @@
             "name": "filename",
             "validate": {
               "op": "string",
-              "min_length": 1,
-              "forbidden": [
-                "\n"
-              ]
+              "min_length": 1
             }
           },
           {
@@ -928,10 +951,7 @@
             "name": "filename",
             "validate": {
               "op": "string",
-              "min_length": 1,
-              "forbidden": [
-                "\n"
-              ]
+              "min_length": 1
             }
           },
           {
@@ -962,10 +982,7 @@
             "name": "filename",
             "validate": {
               "op": "string",
-              "min_length": 1,
-              "forbidden": [
-                "\n"
-              ]
+              "min_length": 1
             }
           },
           {
@@ -996,10 +1013,7 @@
             "name": "filename",
             "validate": {
               "op": "string",
-              "min_length": 1,
-              "forbidden": [
-                "\n"
-              ]
+              "min_length": 1
             }
           },
           {
@@ -1030,10 +1044,7 @@
             "name": "filename",
             "validate": {
               "op": "string",
-              "min_length": 1,
-              "forbidden": [
-                "\n"
-              ]
+              "min_length": 1
             }
           },
           {
@@ -1064,10 +1075,7 @@
             "name": "filename",
             "validate": {
               "op": "string",
-              "min_length": 1,
-              "forbidden": [
-                "\n"
-              ]
+              "min_length": 1
             }
           },
           {
@@ -1098,10 +1106,7 @@
             "name": "filename",
             "validate": {
               "op": "string",
-              "min_length": 1,
-              "forbidden": [
-                "\n"
-              ]
+              "min_length": 1
             }
           },
           {
@@ -1132,10 +1137,7 @@
             "name": "filename",
             "validate": {
               "op": "string",
-              "min_length": 1,
-              "forbidden": [
-                "\n"
-              ]
+              "min_length": 1
             }
           },
           {
@@ -1166,10 +1168,7 @@
             "name": "filename",
             "validate": {
               "op": "string",
-              "min_length": 1,
-              "forbidden": [
-                "\n"
-              ]
+              "min_length": 1
             }
           },
           {
@@ -1200,10 +1199,7 @@
             "name": "filename",
             "validate": {
               "op": "string",
-              "min_length": 1,
-              "forbidden": [
-                "\n"
-              ]
+              "min_length": 1
             }
           },
           {
@@ -1234,10 +1230,7 @@
             "name": "filename",
             "validate": {
               "op": "string",
-              "min_length": 1,
-              "forbidden": [
-                "\n"
-              ]
+              "min_length": 1
             }
           },
           {
@@ -1268,10 +1261,7 @@
             "name": "filename",
             "validate": {
               "op": "string",
-              "min_length": 1,
-              "forbidden": [
-                "\n"
-              ]
+              "min_length": 1
             }
           },
           {
@@ -1291,6 +1281,1654 @@
       "error": {
         "code": "invalid_filename_hash",
         "message": "Invalid filename|pehash value."
+      }
+    },
+    "ip-dst": {
+      "normalize": [
+        {
+          "op": "normalize_ip"
+        }
+      ],
+      "validate": {
+        "op": "ip",
+        "allow_cidr": true
+      },
+      "error": {
+        "code": "invalid_ip",
+        "message": "IP address has an invalid format."
+      }
+    },
+    "mutex": {
+      "validate": {
+        "op": "any"
+      },
+      "error": {
+        "code": "invalid_value",
+        "message": "Invalid value."
+      }
+    },
+    "process-state": {
+      "validate": {
+        "op": "any"
+      },
+      "error": {
+        "code": "invalid_value",
+        "message": "Invalid value."
+      }
+    },
+    "snort": {
+      "validate": {
+        "op": "any"
+      },
+      "error": {
+        "code": "invalid_value",
+        "message": "Invalid value."
+      }
+    },
+    "suricata": {
+      "validate": {
+        "op": "any"
+      },
+      "error": {
+        "code": "invalid_value",
+        "message": "Invalid value."
+      }
+    },
+    "bro": {
+      "validate": {
+        "op": "any"
+      },
+      "error": {
+        "code": "invalid_value",
+        "message": "Invalid value."
+      }
+    },
+    "zeek": {
+      "validate": {
+        "op": "any"
+      },
+      "error": {
+        "code": "invalid_value",
+        "message": "Invalid value."
+      }
+    },
+    "community-id": {
+      "validate": {
+        "op": "any"
+      },
+      "error": {
+        "code": "invalid_value",
+        "message": "Invalid value."
+      }
+    },
+    "anonymised": {
+      "validate": {
+        "op": "any"
+      },
+      "error": {
+        "code": "invalid_value",
+        "message": "Invalid value."
+      }
+    },
+    "pattern-in-file": {
+      "validate": {
+        "op": "any"
+      },
+      "error": {
+        "code": "invalid_value",
+        "message": "Invalid value."
+      }
+    },
+    "pattern-in-traffic": {
+      "validate": {
+        "op": "any"
+      },
+      "error": {
+        "code": "invalid_value",
+        "message": "Invalid value."
+      }
+    },
+    "pattern-in-memory": {
+      "validate": {
+        "op": "any"
+      },
+      "error": {
+        "code": "invalid_value",
+        "message": "Invalid value."
+      }
+    },
+    "filename-pattern": {
+      "validate": {
+        "op": "any"
+      },
+      "error": {
+        "code": "invalid_value",
+        "message": "Invalid value."
+      }
+    },
+    "pgp-public-key": {
+      "validate": {
+        "op": "any"
+      },
+      "error": {
+        "code": "invalid_value",
+        "message": "Invalid value."
+      }
+    },
+    "pgp-private-key": {
+      "validate": {
+        "op": "any"
+      },
+      "error": {
+        "code": "invalid_value",
+        "message": "Invalid value."
+      }
+    },
+    "yara": {
+      "validate": {
+        "op": "any"
+      },
+      "error": {
+        "code": "invalid_value",
+        "message": "Invalid value."
+      }
+    },
+    "stix2-pattern": {
+      "validate": {
+        "op": "any"
+      },
+      "error": {
+        "code": "invalid_value",
+        "message": "Invalid value."
+      }
+    },
+    "sigma": {
+      "validate": {
+        "op": "any"
+      },
+      "error": {
+        "code": "invalid_value",
+        "message": "Invalid value."
+      }
+    },
+    "gene": {
+      "validate": {
+        "op": "any"
+      },
+      "error": {
+        "code": "invalid_value",
+        "message": "Invalid value."
+      }
+    },
+    "kusto-query": {
+      "validate": {
+        "op": "any"
+      },
+      "error": {
+        "code": "invalid_value",
+        "message": "Invalid value."
+      }
+    },
+    "mime-type": {
+      "validate": {
+        "op": "any"
+      },
+      "error": {
+        "code": "invalid_value",
+        "message": "Invalid value."
+      }
+    },
+    "identity-card-number": {
+      "validate": {
+        "op": "any"
+      },
+      "error": {
+        "code": "invalid_value",
+        "message": "Invalid value."
+      }
+    },
+    "cookie": {
+      "validate": {
+        "op": "any"
+      },
+      "error": {
+        "code": "invalid_value",
+        "message": "Invalid value."
+      }
+    },
+    "attachment": {
+      "validate": {
+        "op": "any"
+      },
+      "error": {
+        "code": "invalid_value",
+        "message": "Invalid value."
+      }
+    },
+    "malware-sample": {
+      "validate": {
+        "op": "any"
+      },
+      "error": {
+        "code": "invalid_value",
+        "message": "Invalid value."
+      }
+    },
+    "comment": {
+      "validate": {
+        "op": "any"
+      },
+      "error": {
+        "code": "invalid_value",
+        "message": "Invalid value."
+      }
+    },
+    "text": {
+      "validate": {
+        "op": "any"
+      },
+      "error": {
+        "code": "invalid_value",
+        "message": "Invalid value."
+      }
+    },
+    "other": {
+      "validate": {
+        "op": "any"
+      },
+      "error": {
+        "code": "invalid_value",
+        "message": "Invalid value."
+      }
+    },
+    "cpe": {
+      "validate": {
+        "op": "any"
+      },
+      "error": {
+        "code": "invalid_value",
+        "message": "Invalid value."
+      }
+    },
+    "email-attachment": {
+      "validate": {
+        "op": "any"
+      },
+      "error": {
+        "code": "invalid_value",
+        "message": "Invalid value."
+      }
+    },
+    "email-body": {
+      "validate": {
+        "op": "any"
+      },
+      "error": {
+        "code": "invalid_value",
+        "message": "Invalid value."
+      }
+    },
+    "email-header": {
+      "validate": {
+        "op": "any"
+      },
+      "error": {
+        "code": "invalid_value",
+        "message": "Invalid value."
+      }
+    },
+    "first-name": {
+      "validate": {
+        "op": "any"
+      },
+      "error": {
+        "code": "invalid_value",
+        "message": "Invalid value."
+      }
+    },
+    "middle-name": {
+      "validate": {
+        "op": "any"
+      },
+      "error": {
+        "code": "invalid_value",
+        "message": "Invalid value."
+      }
+    },
+    "last-name": {
+      "validate": {
+        "op": "any"
+      },
+      "error": {
+        "code": "invalid_value",
+        "message": "Invalid value."
+      }
+    },
+    "full-name": {
+      "validate": {
+        "op": "any"
+      },
+      "error": {
+        "code": "invalid_value",
+        "message": "Invalid value."
+      }
+    },
+    "target-user": {
+      "validate": {
+        "op": "string",
+        "forbidden": [
+          "\n"
+        ]
+      },
+      "error": {
+        "code": "newline_not_allowed",
+        "message": "Value must not contain new line character."
+      }
+    },
+    "campaign-name": {
+      "validate": {
+        "op": "string",
+        "forbidden": [
+          "\n"
+        ]
+      },
+      "error": {
+        "code": "newline_not_allowed",
+        "message": "Value must not contain new line character."
+      }
+    },
+    "campaign-id": {
+      "validate": {
+        "op": "string",
+        "forbidden": [
+          "\n"
+        ]
+      },
+      "error": {
+        "code": "newline_not_allowed",
+        "message": "Value must not contain new line character."
+      }
+    },
+    "threat-actor": {
+      "validate": {
+        "op": "string",
+        "forbidden": [
+          "\n"
+        ]
+      },
+      "error": {
+        "code": "newline_not_allowed",
+        "message": "Value must not contain new line character."
+      }
+    },
+    "target-machine": {
+      "validate": {
+        "op": "string",
+        "forbidden": [
+          "\n"
+        ]
+      },
+      "error": {
+        "code": "newline_not_allowed",
+        "message": "Value must not contain new line character."
+      }
+    },
+    "target-org": {
+      "validate": {
+        "op": "string",
+        "forbidden": [
+          "\n"
+        ]
+      },
+      "error": {
+        "code": "newline_not_allowed",
+        "message": "Value must not contain new line character."
+      }
+    },
+    "target-location": {
+      "validate": {
+        "op": "string",
+        "forbidden": [
+          "\n"
+        ]
+      },
+      "error": {
+        "code": "newline_not_allowed",
+        "message": "Value must not contain new line character."
+      }
+    },
+    "target-external": {
+      "validate": {
+        "op": "string",
+        "forbidden": [
+          "\n"
+        ]
+      },
+      "error": {
+        "code": "newline_not_allowed",
+        "message": "Value must not contain new line character."
+      }
+    },
+    "email-subject": {
+      "validate": {
+        "op": "string",
+        "forbidden": [
+          "\n"
+        ]
+      },
+      "error": {
+        "code": "newline_not_allowed",
+        "message": "Value must not contain new line character."
+      }
+    },
+    "malware-type": {
+      "validate": {
+        "op": "string",
+        "forbidden": [
+          "\n"
+        ]
+      },
+      "error": {
+        "code": "newline_not_allowed",
+        "message": "Value must not contain new line character."
+      }
+    },
+    "uri": {
+      "validate": {
+        "op": "string",
+        "forbidden": [
+          "\n"
+        ]
+      },
+      "error": {
+        "code": "newline_not_allowed",
+        "message": "Value must not contain new line character."
+      }
+    },
+    "user-agent": {
+      "validate": {
+        "op": "string",
+        "forbidden": [
+          "\n"
+        ]
+      },
+      "error": {
+        "code": "newline_not_allowed",
+        "message": "Value must not contain new line character."
+      }
+    },
+    "regkey": {
+      "validate": {
+        "op": "string",
+        "forbidden": [
+          "\n"
+        ]
+      },
+      "error": {
+        "code": "newline_not_allowed",
+        "message": "Value must not contain new line character."
+      }
+    },
+    "regkey|value": {
+      "validate": {
+        "op": "string",
+        "forbidden": [
+          "\n"
+        ]
+      },
+      "error": {
+        "code": "newline_not_allowed",
+        "message": "Value must not contain new line character."
+      }
+    },
+    "filename": {
+      "validate": {
+        "op": "string",
+        "forbidden": [
+          "\n"
+        ]
+      },
+      "error": {
+        "code": "newline_not_allowed",
+        "message": "Value must not contain new line character."
+      }
+    },
+    "pdb": {
+      "validate": {
+        "op": "string",
+        "forbidden": [
+          "\n"
+        ]
+      },
+      "error": {
+        "code": "newline_not_allowed",
+        "message": "Value must not contain new line character."
+      }
+    },
+    "windows-scheduled-task": {
+      "validate": {
+        "op": "string",
+        "forbidden": [
+          "\n"
+        ]
+      },
+      "error": {
+        "code": "newline_not_allowed",
+        "message": "Value must not contain new line character."
+      }
+    },
+    "whois-registrant-name": {
+      "validate": {
+        "op": "string",
+        "forbidden": [
+          "\n"
+        ]
+      },
+      "error": {
+        "code": "newline_not_allowed",
+        "message": "Value must not contain new line character."
+      }
+    },
+    "whois-registrant-org": {
+      "validate": {
+        "op": "string",
+        "forbidden": [
+          "\n"
+        ]
+      },
+      "error": {
+        "code": "newline_not_allowed",
+        "message": "Value must not contain new line character."
+      }
+    },
+    "whois-registrar": {
+      "validate": {
+        "op": "string",
+        "forbidden": [
+          "\n"
+        ]
+      },
+      "error": {
+        "code": "newline_not_allowed",
+        "message": "Value must not contain new line character."
+      }
+    },
+    "whois-creation-date": {
+      "validate": {
+        "op": "string",
+        "forbidden": [
+          "\n"
+        ]
+      },
+      "error": {
+        "code": "newline_not_allowed",
+        "message": "Value must not contain new line character."
+      }
+    },
+    "date-of-birth": {
+      "validate": {
+        "op": "string",
+        "forbidden": [
+          "\n"
+        ]
+      },
+      "error": {
+        "code": "newline_not_allowed",
+        "message": "Value must not contain new line character."
+      }
+    },
+    "place-of-birth": {
+      "validate": {
+        "op": "string",
+        "forbidden": [
+          "\n"
+        ]
+      },
+      "error": {
+        "code": "newline_not_allowed",
+        "message": "Value must not contain new line character."
+      }
+    },
+    "gender": {
+      "validate": {
+        "op": "string",
+        "forbidden": [
+          "\n"
+        ]
+      },
+      "error": {
+        "code": "newline_not_allowed",
+        "message": "Value must not contain new line character."
+      }
+    },
+    "passport-number": {
+      "validate": {
+        "op": "string",
+        "forbidden": [
+          "\n"
+        ]
+      },
+      "error": {
+        "code": "newline_not_allowed",
+        "message": "Value must not contain new line character."
+      }
+    },
+    "passport-country": {
+      "validate": {
+        "op": "string",
+        "forbidden": [
+          "\n"
+        ]
+      },
+      "error": {
+        "code": "newline_not_allowed",
+        "message": "Value must not contain new line character."
+      }
+    },
+    "passport-expiration": {
+      "validate": {
+        "op": "string",
+        "forbidden": [
+          "\n"
+        ]
+      },
+      "error": {
+        "code": "newline_not_allowed",
+        "message": "Value must not contain new line character."
+      }
+    },
+    "redress-number": {
+      "validate": {
+        "op": "string",
+        "forbidden": [
+          "\n"
+        ]
+      },
+      "error": {
+        "code": "newline_not_allowed",
+        "message": "Value must not contain new line character."
+      }
+    },
+    "nationality": {
+      "validate": {
+        "op": "string",
+        "forbidden": [
+          "\n"
+        ]
+      },
+      "error": {
+        "code": "newline_not_allowed",
+        "message": "Value must not contain new line character."
+      }
+    },
+    "visa-number": {
+      "validate": {
+        "op": "string",
+        "forbidden": [
+          "\n"
+        ]
+      },
+      "error": {
+        "code": "newline_not_allowed",
+        "message": "Value must not contain new line character."
+      }
+    },
+    "issue-date-of-the-visa": {
+      "validate": {
+        "op": "string",
+        "forbidden": [
+          "\n"
+        ]
+      },
+      "error": {
+        "code": "newline_not_allowed",
+        "message": "Value must not contain new line character."
+      }
+    },
+    "primary-residence": {
+      "validate": {
+        "op": "string",
+        "forbidden": [
+          "\n"
+        ]
+      },
+      "error": {
+        "code": "newline_not_allowed",
+        "message": "Value must not contain new line character."
+      }
+    },
+    "country-of-residence": {
+      "validate": {
+        "op": "string",
+        "forbidden": [
+          "\n"
+        ]
+      },
+      "error": {
+        "code": "newline_not_allowed",
+        "message": "Value must not contain new line character."
+      }
+    },
+    "special-service-request": {
+      "validate": {
+        "op": "string",
+        "forbidden": [
+          "\n"
+        ]
+      },
+      "error": {
+        "code": "newline_not_allowed",
+        "message": "Value must not contain new line character."
+      }
+    },
+    "frequent-flyer-number": {
+      "validate": {
+        "op": "string",
+        "forbidden": [
+          "\n"
+        ]
+      },
+      "error": {
+        "code": "newline_not_allowed",
+        "message": "Value must not contain new line character."
+      }
+    },
+    "travel-details": {
+      "validate": {
+        "op": "string",
+        "forbidden": [
+          "\n"
+        ]
+      },
+      "error": {
+        "code": "newline_not_allowed",
+        "message": "Value must not contain new line character."
+      }
+    },
+    "payment-details": {
+      "validate": {
+        "op": "string",
+        "forbidden": [
+          "\n"
+        ]
+      },
+      "error": {
+        "code": "newline_not_allowed",
+        "message": "Value must not contain new line character."
+      }
+    },
+    "place-port-of-original-embarkation": {
+      "validate": {
+        "op": "string",
+        "forbidden": [
+          "\n"
+        ]
+      },
+      "error": {
+        "code": "newline_not_allowed",
+        "message": "Value must not contain new line character."
+      }
+    },
+    "place-port-of-clearance": {
+      "validate": {
+        "op": "string",
+        "forbidden": [
+          "\n"
+        ]
+      },
+      "error": {
+        "code": "newline_not_allowed",
+        "message": "Value must not contain new line character."
+      }
+    },
+    "place-port-of-onward-foreign-destination": {
+      "validate": {
+        "op": "string",
+        "forbidden": [
+          "\n"
+        ]
+      },
+      "error": {
+        "code": "newline_not_allowed",
+        "message": "Value must not contain new line character."
+      }
+    },
+    "passenger-name-record-locator-number": {
+      "validate": {
+        "op": "string",
+        "forbidden": [
+          "\n"
+        ]
+      },
+      "error": {
+        "code": "newline_not_allowed",
+        "message": "Value must not contain new line character."
+      }
+    },
+    "email-dst-display-name": {
+      "validate": {
+        "op": "string",
+        "forbidden": [
+          "\n"
+        ]
+      },
+      "error": {
+        "code": "newline_not_allowed",
+        "message": "Value must not contain new line character."
+      }
+    },
+    "email-src-display-name": {
+      "validate": {
+        "op": "string",
+        "forbidden": [
+          "\n"
+        ]
+      },
+      "error": {
+        "code": "newline_not_allowed",
+        "message": "Value must not contain new line character."
+      }
+    },
+    "email-reply-to": {
+      "validate": {
+        "op": "string",
+        "forbidden": [
+          "\n"
+        ]
+      },
+      "error": {
+        "code": "newline_not_allowed",
+        "message": "Value must not contain new line character."
+      }
+    },
+    "email-x-mailer": {
+      "validate": {
+        "op": "string",
+        "forbidden": [
+          "\n"
+        ]
+      },
+      "error": {
+        "code": "newline_not_allowed",
+        "message": "Value must not contain new line character."
+      }
+    },
+    "email-mime-boundary": {
+      "validate": {
+        "op": "string",
+        "forbidden": [
+          "\n"
+        ]
+      },
+      "error": {
+        "code": "newline_not_allowed",
+        "message": "Value must not contain new line character."
+      }
+    },
+    "email-thread-index": {
+      "validate": {
+        "op": "string",
+        "forbidden": [
+          "\n"
+        ]
+      },
+      "error": {
+        "code": "newline_not_allowed",
+        "message": "Value must not contain new line character."
+      }
+    },
+    "email-message-id": {
+      "validate": {
+        "op": "string",
+        "forbidden": [
+          "\n"
+        ]
+      },
+      "error": {
+        "code": "newline_not_allowed",
+        "message": "Value must not contain new line character."
+      }
+    },
+    "github-username": {
+      "validate": {
+        "op": "string",
+        "forbidden": [
+          "\n"
+        ]
+      },
+      "error": {
+        "code": "newline_not_allowed",
+        "message": "Value must not contain new line character."
+      }
+    },
+    "github-repository": {
+      "validate": {
+        "op": "string",
+        "forbidden": [
+          "\n"
+        ]
+      },
+      "error": {
+        "code": "newline_not_allowed",
+        "message": "Value must not contain new line character."
+      }
+    },
+    "github-organisation": {
+      "validate": {
+        "op": "string",
+        "forbidden": [
+          "\n"
+        ]
+      },
+      "error": {
+        "code": "newline_not_allowed",
+        "message": "Value must not contain new line character."
+      }
+    },
+    "twitter-id": {
+      "validate": {
+        "op": "string",
+        "forbidden": [
+          "\n"
+        ]
+      },
+      "error": {
+        "code": "newline_not_allowed",
+        "message": "Value must not contain new line character."
+      }
+    },
+    "dkim": {
+      "validate": {
+        "op": "string",
+        "forbidden": [
+          "\n"
+        ]
+      },
+      "error": {
+        "code": "newline_not_allowed",
+        "message": "Value must not contain new line character."
+      }
+    },
+    "dkim-signature": {
+      "validate": {
+        "op": "string",
+        "forbidden": [
+          "\n"
+        ]
+      },
+      "error": {
+        "code": "newline_not_allowed",
+        "message": "Value must not contain new line character."
+      }
+    },
+    "favicon-mmh3": {
+      "validate": {
+        "op": "string",
+        "forbidden": [
+          "\n"
+        ]
+      },
+      "error": {
+        "code": "newline_not_allowed",
+        "message": "Value must not contain new line character."
+      }
+    },
+    "mobile-application-id": {
+      "validate": {
+        "op": "string",
+        "forbidden": [
+          "\n"
+        ]
+      },
+      "error": {
+        "code": "newline_not_allowed",
+        "message": "Value must not contain new line character."
+      }
+    },
+    "azure-application-id": {
+      "validate": {
+        "op": "string",
+        "forbidden": [
+          "\n"
+        ]
+      },
+      "error": {
+        "code": "newline_not_allowed",
+        "message": "Value must not contain new line character."
+      }
+    },
+    "windows-service-name": {
+      "validate": {
+        "op": "string",
+        "max_length": 256,
+        "forbidden": [
+          "/",
+          "\\"
+        ]
+      },
+      "error": {
+        "code": "invalid_value",
+        "message": "Invalid value."
+      }
+    },
+    "windows-service-displayname": {
+      "validate": {
+        "op": "string",
+        "max_length": 256,
+        "forbidden": [
+          "/",
+          "\\"
+        ]
+      },
+      "error": {
+        "code": "invalid_value",
+        "message": "Invalid value."
+      }
+    },
+    "link": {
+      "validate": {
+        "op": "url"
+      },
+      "error": {
+        "code": "invalid_url",
+        "message": "URL must be valid and use HTTP or HTTPS."
+      }
+    },
+    "eppn": {
+      "validate": {
+        "op": "regex",
+        "pattern": "^.[^\\s]*@.*\\..*$",
+        "case_insensitive": true
+      },
+      "error": {
+        "code": "invalid_value",
+        "message": "Invalid value."
+      }
+    },
+    "dns-soa-email": {
+      "validate": {
+        "op": "regex",
+        "pattern": "^.[^\\s]*@.*\\..*$",
+        "case_insensitive": true
+      },
+      "error": {
+        "code": "invalid_value",
+        "message": "Invalid value."
+      }
+    },
+    "jabber-id": {
+      "validate": {
+        "op": "regex",
+        "pattern": "^.[^\\s]*@.*\\..*$",
+        "case_insensitive": true
+      },
+      "error": {
+        "code": "invalid_value",
+        "message": "Invalid value."
+      }
+    },
+    "cdhash": {
+      "validate": {
+        "op": "regex",
+        "pattern": "^[0-9a-f]{40,}$"
+      },
+      "error": {
+        "code": "invalid_value",
+        "message": "Invalid value."
+      },
+      "normalize": [
+        {
+          "op": "lowercase"
+        }
+      ]
+    },
+    "http-method": {
+      "validate": {
+        "op": "regex",
+        "pattern": "^(OPTIONS|GET|HEAD|POST|PUT|DELETE|TRACE|CONNECT|PROPFIND|PROPPATCH|MKCOL|COPY|MOVE|LOCK|UNLOCK|VERSION-CONTROL|REPORT|CHECKOUT|CHECKIN|UNCHECKOUT|MKWORKSPACE|UPDATE|LABEL|MERGE|BASELINE-CONTROL|MKACTIVITY|ORDERPATCH|ACL|PATCH|SEARCH)$"
+      },
+      "error": {
+        "code": "invalid_value",
+        "message": "Invalid value."
+      },
+      "normalize": [
+        {
+          "op": "uppercase"
+        }
+      ]
+    },
+    "impfuzzy": {
+      "validate": {
+        "op": "regex",
+        "pattern": "^[0-9]+:[^:]*:[^:]*$"
+      },
+      "error": {
+        "code": "invalid_value",
+        "message": "Invalid value."
+      }
+    },
+    "vhash": {
+      "validate": {
+        "op": "string",
+        "min_length": 1
+      },
+      "error": {
+        "code": "invalid_value",
+        "message": "Invalid value."
+      },
+      "normalize": [
+        {
+          "op": "lowercase"
+        }
+      ]
+    },
+    "chrome-extension-id": {
+      "validate": {
+        "op": "regex",
+        "pattern": "^[a-p]{32}$"
+      },
+      "error": {
+        "code": "invalid_value",
+        "message": "Invalid value."
+      }
+    },
+    "edge-extension-id": {
+      "validate": {
+        "op": "regex",
+        "pattern": "^[a-p]{32}$"
+      },
+      "error": {
+        "code": "invalid_value",
+        "message": "Invalid value."
+      }
+    },
+    "mac-address": {
+      "validate": {
+        "op": "regex",
+        "pattern": "^([a-f0-9]{2}:){5}[a-f0-9]{2}$"
+      },
+      "error": {
+        "code": "invalid_value",
+        "message": "Invalid value."
+      },
+      "normalize": [
+        {
+          "op": "normalize_mac"
+        }
+      ]
+    },
+    "mac-eui-64": {
+      "validate": {
+        "op": "regex",
+        "pattern": "^([a-f0-9]{2}:){3}ff:fe(:[a-f0-9]{2}){3}$"
+      },
+      "error": {
+        "code": "invalid_value",
+        "message": "Invalid value."
+      },
+      "normalize": [
+        {
+          "op": "normalize_mac"
+        }
+      ]
+    },
+    "size-in-bytes": {
+      "validate": {
+        "op": "integer",
+        "min": 0
+      },
+      "error": {
+        "code": "invalid_value",
+        "message": "Invalid value."
+      }
+    },
+    "counter": {
+      "validate": {
+        "op": "integer",
+        "min": 0
+      },
+      "error": {
+        "code": "invalid_value",
+        "message": "Invalid value."
+      }
+    },
+    "float": {
+      "validate": {
+        "op": "numeric"
+      },
+      "error": {
+        "code": "invalid_value",
+        "message": "Invalid value."
+      }
+    },
+    "bank-account-nr": {
+      "validate": {
+        "op": "numeric"
+      },
+      "error": {
+        "code": "invalid_value",
+        "message": "Invalid value."
+      }
+    },
+    "aba-rtn": {
+      "validate": {
+        "op": "numeric"
+      },
+      "error": {
+        "code": "invalid_value",
+        "message": "Invalid value."
+      }
+    },
+    "bin": {
+      "validate": {
+        "op": "numeric"
+      },
+      "error": {
+        "code": "invalid_value",
+        "message": "Invalid value."
+      },
+      "normalize": [
+        {
+          "op": "regex_replace",
+          "pattern": "[^0-9]+",
+          "replacement": ""
+        }
+      ]
+    },
+    "cc-number": {
+      "validate": {
+        "op": "numeric"
+      },
+      "error": {
+        "code": "invalid_value",
+        "message": "Invalid value."
+      },
+      "normalize": [
+        {
+          "op": "regex_replace",
+          "pattern": "[^0-9]+",
+          "replacement": ""
+        }
+      ]
+    },
+    "prtn": {
+      "validate": {
+        "op": "numeric"
+      },
+      "error": {
+        "code": "invalid_value",
+        "message": "Invalid value."
+      },
+      "normalize": [
+        {
+          "op": "normalize_phone"
+        }
+      ]
+    },
+    "phone-number": {
+      "validate": {
+        "op": "numeric"
+      },
+      "error": {
+        "code": "invalid_value",
+        "message": "Invalid value."
+      },
+      "normalize": [
+        {
+          "op": "normalize_phone"
+        }
+      ]
+    },
+    "whois-registrant-phone": {
+      "validate": {
+        "op": "numeric"
+      },
+      "error": {
+        "code": "invalid_value",
+        "message": "Invalid value."
+      },
+      "normalize": [
+        {
+          "op": "normalize_phone"
+        }
+      ]
+    },
+    "iban": {
+      "validate": {
+        "op": "regex",
+        "pattern": "^[a-zA-Z0-9]+$"
+      },
+      "error": {
+        "code": "invalid_value",
+        "message": "Invalid value."
+      },
+      "normalize": [
+        {
+          "op": "uppercase"
+        },
+        {
+          "op": "regex_replace",
+          "pattern": "[^0-9A-Z]+",
+          "replacement": ""
+        }
+      ]
+    },
+    "bic": {
+      "validate": {
+        "op": "regex",
+        "pattern": "^[a-zA-Z0-9]+$"
+      },
+      "error": {
+        "code": "invalid_value",
+        "message": "Invalid value."
+      },
+      "normalize": [
+        {
+          "op": "uppercase"
+        },
+        {
+          "op": "regex_replace",
+          "pattern": "[^0-9A-Z]+",
+          "replacement": ""
+        }
+      ]
+    },
+    "btc": {
+      "validate": {
+        "op": "regex",
+        "pattern": "^[a-zA-Z0-9]+$"
+      },
+      "error": {
+        "code": "invalid_value",
+        "message": "Invalid value."
+      }
+    },
+    "dash": {
+      "validate": {
+        "op": "regex",
+        "pattern": "^[a-zA-Z0-9]+$"
+      },
+      "error": {
+        "code": "invalid_value",
+        "message": "Invalid value."
+      }
+    },
+    "xmr": {
+      "validate": {
+        "op": "regex",
+        "pattern": "^[a-zA-Z0-9]+$"
+      },
+      "error": {
+        "code": "invalid_value",
+        "message": "Invalid value."
+      }
+    },
+    "AS": {
+      "normalize": [
+        {
+          "op": "strip_prefix",
+          "value": "AS",
+          "case_insensitive": true
+        },
+        {
+          "op": "asdot_to_asplain"
+        }
+      ],
+      "validate": {
+        "op": "integer",
+        "min": 0,
+        "max": 4294967295
+      },
+      "error": {
+        "code": "invalid_as",
+        "message": "AS number has to be between 0 and 4294967295."
+      }
+    },
+    "cortex": {
+      "validate": {
+        "op": "json"
+      },
+      "error": {
+        "code": "invalid_json",
+        "message": "Value must be valid JSON."
+      }
+    },
+    "filename|ssdeep": {
+      "validate": {
+        "op": "composite",
+        "separator": "|",
+        "fields": [
+          {
+            "name": "filename",
+            "validate": {
+              "op": "string",
+              "forbidden": [
+                "\n"
+              ]
+            }
+          },
+          {
+            "name": "ssdeep",
+            "validate": {
+              "op": "regex",
+              "pattern": "^[0-9]+:[0-9a-zA-Z/+]*:[0-9a-zA-Z/+]*$"
+            }
+          }
+        ]
+      },
+      "error": {
+        "code": "invalid_composite",
+        "message": "Invalid composite value."
+      }
+    },
+    "filename|tlsh": {
+      "validate": {
+        "op": "composite",
+        "separator": "|",
+        "fields": [
+          {
+            "name": "filename",
+            "validate": {
+              "op": "string",
+              "forbidden": [
+                "\n"
+              ]
+            }
+          },
+          {
+            "name": "tlsh",
+            "normalize": [
+              {
+                "op": "lowercase"
+              }
+            ],
+            "validate": {
+              "op": "regex",
+              "pattern": "^t?[0-9a-f]{36,}$"
+            }
+          }
+        ]
+      },
+      "error": {
+        "code": "invalid_composite",
+        "message": "Invalid composite value."
+      }
+    },
+    "filename|vhash": {
+      "validate": {
+        "op": "composite",
+        "separator": "|",
+        "fields": [
+          {
+            "name": "value",
+            "validate": {
+              "op": "string",
+              "min_length": 1
+            }
+          },
+          {
+            "name": "value",
+            "validate": {
+              "op": "string",
+              "min_length": 1
+            },
+            "normalize": [
+              {
+                "op": "lowercase"
+              }
+            ]
+          }
+        ]
+      },
+      "error": {
+        "code": "invalid_composite",
+        "message": "Invalid composite value."
+      }
+    },
+    "domain|ip": {
+      "validate": {
+        "op": "composite",
+        "separator": "|",
+        "fields": [
+          {
+            "name": "domain",
+            "validate": {
+              "op": "regex",
+              "pattern": "^[A-Z0-9.\\-_]+\\.[A-Z0-9\\-]{2,}$",
+              "case_insensitive": true
+            }
+          },
+          {
+            "name": "ip",
+            "validate": {
+              "op": "ip",
+              "allow_cidr": false
+            }
+          }
+        ]
+      },
+      "error": {
+        "code": "invalid_composite",
+        "message": "Invalid composite value."
+      },
+      "normalize": [
+        {
+          "op": "lowercase"
+        }
+      ]
+    },
+    "hostname|port": {
+      "validate": {
+        "op": "composite",
+        "separator": "|",
+        "fields": [
+          {
+            "name": "domain",
+            "validate": {
+              "op": "regex",
+              "pattern": "^[A-Z0-9.\\-_]+\\.[A-Z0-9\\-]{2,}$",
+              "case_insensitive": true
+            }
+          },
+          {
+            "name": "port",
+            "validate": {
+              "op": "integer",
+              "min": 1,
+              "max": 65535
+            }
+          }
+        ]
+      },
+      "error": {
+        "code": "invalid_composite",
+        "message": "Invalid composite value."
+      },
+      "normalize": [
+        {
+          "op": "lowercase"
+        },
+        {
+          "op": "replace",
+          "old": ":",
+          "new": "|"
+        }
+      ]
+    },
+    "ip-src|port": {
+      "validate": {
+        "op": "composite",
+        "separator": "|",
+        "fields": [
+          {
+            "name": "ip",
+            "validate": {
+              "op": "ip",
+              "allow_cidr": false
+            }
+          },
+          {
+            "name": "port",
+            "validate": {
+              "op": "integer",
+              "min": 1,
+              "max": 65535
+            }
+          }
+        ]
+      },
+      "error": {
+        "code": "invalid_composite",
+        "message": "Invalid composite value."
+      },
+      "normalize": [
+        {
+          "op": "normalize_ip_port"
+        }
+      ]
+    },
+    "ip-dst|port": {
+      "validate": {
+        "op": "composite",
+        "separator": "|",
+        "fields": [
+          {
+            "name": "ip",
+            "validate": {
+              "op": "ip",
+              "allow_cidr": false
+            }
+          },
+          {
+            "name": "port",
+            "validate": {
+              "op": "integer",
+              "min": 1,
+              "max": 65535
+            }
+          }
+        ]
+      },
+      "error": {
+        "code": "invalid_composite",
+        "message": "Invalid composite value."
+      },
+      "normalize": [
+        {
+          "op": "normalize_ip_port"
+        }
+      ]
+    },
+    "named pipe": {
+      "validate": {
+        "op": "string",
+        "forbidden": [
+          "\n"
+        ]
+      },
+      "error": {
+        "code": "newline_not_allowed",
+        "message": "Value must not contain new line character."
       }
     }
   }
