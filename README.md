@@ -39,7 +39,6 @@ A backend/runtime decides how `lowercase` and `hash` are implemented.
 
 ## Next steps
 
-- Encode all MISP hash definitions.
 - Formalize portable regex semantics.
 - Add a PHP oracle test harness against the pinned MISP implementation.
 - Add a second runtime (Go or TypeScript) early to verify language independence.
