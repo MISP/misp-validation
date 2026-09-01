@@ -4,11 +4,13 @@ use base64::{engine::general_purpose::STANDARD, Engine as _};
 use chrono::{Duration, FixedOffset, NaiveDate, TimeZone};
 use regex::{Regex, RegexBuilder};
 use serde_json::Value;
-use std::{fmt, fs, net::IpAddr, path::Path, str::FromStr};
+use std::{fs, net::IpAddr, path::Path, str::FromStr};
+use thiserror::Error;
 use url::Url;
 
 /// A validation failure described by the attribute specification.
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, Error)]
+#[error("{message} ({code})")]
 pub struct ValidationError {
     pub code: String,
     pub message: String,
@@ -23,24 +25,30 @@ pub struct ValidationResult {
 }
 
 /// An invalid specification, unknown type, or unsupported rule operation.
-#[derive(Debug)]
-pub struct RuleEngineError(String);
-
-impl fmt::Display for RuleEngineError {
-    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
-        formatter.write_str(&self.0)
-    }
-}
-impl std::error::Error for RuleEngineError {}
-impl From<std::io::Error> for RuleEngineError {
-    fn from(error: std::io::Error) -> Self {
-        Self(error.to_string())
-    }
-}
-impl From<serde_json::Error> for RuleEngineError {
-    fn from(error: serde_json::Error) -> Self {
-        Self(error.to_string())
-    }
+#[derive(Debug, Error)]
+pub enum RuleEngineError {
+    #[error("failed to read specification file: {0}")]
+    Io(#[from] std::io::Error),
+    #[error("failed to parse specification: {0}")]
+    Json(#[from] serde_json::Error),
+    #[error("invalid regex pattern: {0}")]
+    Regex(#[from] regex::Error),
+    #[error("specification has no types object")]
+    MissingTypes,
+    #[error("unknown attribute type: {0}")]
+    UnknownType(String),
+    #[error("unknown hash definition: {0}")]
+    UnknownHashDefinition(String),
+    #[error("only hex hashes are supported by prototype")]
+    UnsupportedHashEncoding,
+    #[error("unsupported normalizer op: {0}")]
+    UnsupportedNormalizer(String),
+    #[error("unsupported validator op: {0}")]
+    UnsupportedValidator(String),
+    #[error("missing rule field: {0}")]
+    MissingField(String),
+    #[error("rule field is not text: {0}")]
+    InvalidFieldType(String),
 }
 
 /// Interprets normalization and validation operations from a JSON rule specification.
@@ -51,7 +59,7 @@ pub struct RuleEngine {
 impl RuleEngine {
     pub fn new(spec: Value) -> Result<Self, RuleEngineError> {
         if spec.get("types").and_then(Value::as_object).is_none() {
-            return Err(RuleEngineError("Specification has no types object".into()));
+            return Err(RuleEngineError::MissingTypes);
         }
         Ok(Self { spec })
     }
@@ -115,7 +123,7 @@ impl RuleEngine {
     fn type_rule(&self, name: &str) -> Result<&Value, RuleEngineError> {
         self.spec["types"]
             .get(name)
-            .ok_or_else(|| RuleEngineError(format!("Unknown attribute type: {name}")))
+            .ok_or_else(|| RuleEngineError::UnknownType(name.to_owned()))
     }
     fn default_normalizers(&self) -> &[Value] {
         array(self.spec.get("defaults").and_then(|v| v.get("normalize")))
@@ -167,8 +175,7 @@ impl RuleEngine {
                     }
                 }
                 "regex_replace" => {
-                    value = Regex::new(required_text(operation, "pattern")?)
-                        .map_err(regex_error)?
+                    value = Regex::new(required_text(operation, "pattern")?)?
                         .replace_all(&value, text(operation.get("replacement")).unwrap_or(""))
                         .into_owned()
                 }
@@ -246,7 +253,7 @@ impl RuleEngine {
                         }
                     }
                 }
-                _ => return Err(RuleEngineError(format!("Unsupported normalizer op: {op}"))),
+                _ => return Err(RuleEngineError::UnsupportedNormalizer(op.to_owned())),
             }
         }
         Ok(value)
@@ -276,11 +283,9 @@ impl RuleEngine {
                     .get("definitions")
                     .and_then(|v| v.get("hashes"))
                     .and_then(|v| v.get(algorithm))
-                    .ok_or_else(|| RuleEngineError("Unknown hash definition".into()))?;
+                    .ok_or_else(|| RuleEngineError::UnknownHashDefinition(algorithm.to_owned()))?;
                 if text(definition.get("encoding")) != Some("hex") {
-                    return Err(RuleEngineError(
-                        "Only hex hashes are supported by prototype".into(),
-                    ));
+                    return Err(RuleEngineError::UnsupportedHashEncoding);
                 }
                 let lengths: Vec<u64> = definition["length"]
                     .as_array()
@@ -295,8 +300,7 @@ impl RuleEngine {
                         .and_then(Value::as_bool)
                         .unwrap_or(false),
                 )
-                .build()
-                .map_err(regex_error)?
+                .build()?
                 .is_match(&value),
             "integer" => integer_is_valid(rule, &value),
             "boolean" => matches!(value.as_str(), "0" | "1"),
@@ -339,7 +343,7 @@ impl RuleEngine {
                 }
                 return Ok((true, normalized.join(separator)));
             }
-            _ => return Err(RuleEngineError(format!("Unsupported validator op: {op}"))),
+            _ => return Err(RuleEngineError::UnsupportedValidator(op.to_owned())),
         };
         Ok((valid, value))
     }
@@ -351,21 +355,19 @@ fn array(value: Option<&Value>) -> &[Value] {
         .map(Vec::as_slice)
         .unwrap_or(&[])
 }
+
 fn text(value: Option<&Value>) -> Option<&str> {
     value.and_then(Value::as_str)
 }
 fn required<'a>(value: &'a Value, key: &str) -> Result<&'a Value, RuleEngineError> {
     value
         .get(key)
-        .ok_or_else(|| RuleEngineError(format!("Missing rule field: {key}")))
+        .ok_or_else(|| RuleEngineError::MissingField(key.to_owned()))
 }
 fn required_text<'a>(value: &'a Value, key: &str) -> Result<&'a str, RuleEngineError> {
     required(value, key)?
         .as_str()
-        .ok_or_else(|| RuleEngineError(format!("Rule field is not text: {key}")))
-}
-fn regex_error(error: regex::Error) -> RuleEngineError {
-    RuleEngineError(error.to_string())
+        .ok_or_else(|| RuleEngineError::InvalidFieldType(key.to_owned()))
 }
 fn is_hex(value: &str) -> bool {
     !value.is_empty() && value.bytes().all(|c| c.is_ascii_hexdigit())
