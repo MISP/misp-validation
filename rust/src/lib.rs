@@ -63,7 +63,7 @@ impl RuleEngine {
     /// Create an engine using the attribute rules compiled into this crate.
     pub fn from_default_spec() -> Result<Self, RuleEngineError> {
         Self::new(serde_json::from_str(include_str!(
-            "../spec/attributes.json"
+            "../../spec/attributes.json"
         ))?)
     }
 
@@ -270,11 +270,12 @@ impl RuleEngine {
                         .is_ok_and(|u| matches!(u.scheme(), "http" | "https") && u.host().is_some())
             }
             "hash" => {
+                let algorithm = required_text(rule, "algorithm")?;
                 let definition = self
                     .spec
                     .get("definitions")
                     .and_then(|v| v.get("hashes"))
-                    .and_then(|v| v.get(required_text(rule, "algorithm")?))
+                    .and_then(|v| v.get(algorithm))
                     .ok_or_else(|| RuleEngineError("Unknown hash definition".into()))?;
                 if text(definition.get("encoding")) != Some("hex") {
                     return Err(RuleEngineError(
@@ -444,7 +445,7 @@ fn date_regex() -> Regex {
 }
 fn parse_datetime(value: &str) -> Option<(chrono::DateTime<FixedOffset>, String)> {
     let captures = date_regex().captures(value)?;
-    let number = |index| captures[index].parse::<u32>().ok();
+    let number = |index: usize| captures[index].parse::<u32>().ok();
     let (year, month, day, hour, minute, second) = (
         captures[1].parse::<i32>().ok()?,
         number(2)?,

@@ -12,8 +12,13 @@ struct Vector {
 
 #[test]
 fn shared_conformance_vectors() {
-    let vectors: Vec<Vector> = serde_json::from_str(include_str!("vectors.json")).unwrap();
-    let engine = RuleEngine::from_file("spec/attributes.json").unwrap();
+    let vectors: Vec<Vector> =
+        serde_json::from_str(include_str!("../../tests/vectors.json")).unwrap();
+    let engine = RuleEngine::from_file(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../spec/attributes.json"
+    ))
+    .unwrap();
     let default_engine = RuleEngine::from_default_spec().unwrap();
     for (index, vector) in vectors.iter().enumerate() {
         let result = engine.validate(&vector.type_name, &vector.input).unwrap();
