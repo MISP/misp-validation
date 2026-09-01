@@ -112,7 +112,10 @@ impl RuleEngine {
 
     pub fn valid_types(&self, value: &str) -> Result<Vec<String>, RuleEngineError> {
         let mut result = Vec::new();
-        for name in self.spec["types"].as_object().unwrap().keys() {
+        let types = self.spec["types"]
+            .as_object()
+            .ok_or(RuleEngineError::MissingTypes)?;
+        for name in types.keys() {
             if self.validate(name, value)?.valid {
                 result.push(name.clone());
             }
@@ -399,15 +402,10 @@ fn normalize_ip(value: &str) -> String {
         return value.to_owned();
     };
     let normalized = parsed.to_string();
-    if prefix.is_none()
-        || matches!(
-            (parsed, prefix),
-            (IpAddr::V4(_), Some("32")) | (IpAddr::V6(_), Some("128"))
-        )
-    {
-        normalized
-    } else {
-        format!("{normalized}/{}", prefix.unwrap())
+    match (parsed, prefix) {
+        (_, None) => normalized,
+        (IpAddr::V4(_), Some("32")) | (IpAddr::V6(_), Some("128")) => normalized,
+        (_, Some(prefix)) => format!("{normalized}/{prefix}"),
     }
 }
 fn valid_ip(value: &str, allow_cidr: bool) -> bool {
