@@ -3,7 +3,7 @@
 use base64::{engine::general_purpose::STANDARD, Engine as _};
 use chrono::{Duration, FixedOffset, NaiveDate, TimeZone};
 use regex::{Regex, RegexBuilder};
-use serde_json::Value;
+use serde_json::{Map, Value};
 use std::{fs, net::IpAddr, path::Path, str::FromStr, sync::OnceLock};
 use thiserror::Error;
 use url::Url;
@@ -58,10 +58,9 @@ pub struct RuleEngine {
 
 impl RuleEngine {
     pub fn new(spec: Value) -> Result<Self, RuleEngineError> {
-        if spec.get("types").and_then(Value::as_object).is_none() {
-            return Err(RuleEngineError::MissingTypes);
-        }
-        Ok(Self { spec })
+        let engine = Self { spec };
+        engine.types()?;
+        Ok(engine)
     }
 
     pub fn from_file(path: impl AsRef<Path>) -> Result<Self, RuleEngineError> {
@@ -112,10 +111,7 @@ impl RuleEngine {
 
     pub fn valid_types(&self, value: &str) -> Result<Vec<String>, RuleEngineError> {
         let mut result = Vec::new();
-        let types = self.spec["types"]
-            .as_object()
-            .ok_or(RuleEngineError::MissingTypes)?;
-        for name in types.keys() {
+        for name in self.types()?.keys() {
             if self.validate(name, value)?.valid {
                 result.push(name.clone());
             }
@@ -123,8 +119,14 @@ impl RuleEngine {
         Ok(result)
     }
 
-    fn type_rule(&self, name: &str) -> Result<&Value, RuleEngineError> {
+    fn types(&self) -> Result<&Map<String, Value>, RuleEngineError> {
         self.spec["types"]
+            .as_object()
+            .ok_or(RuleEngineError::MissingTypes)
+    }
+
+    fn type_rule(&self, name: &str) -> Result<&Value, RuleEngineError> {
+        self.types()?
             .get(name)
             .ok_or_else(|| RuleEngineError::UnknownType(name.to_owned()))
     }
