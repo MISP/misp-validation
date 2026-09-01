@@ -19,7 +19,7 @@ This prototype intentionally separates:
 - `typescript/src/index.ts` — TypeScript interpreter with the same public operations.
 - `rust/src/lib.rs` — Rust interpreter and crate with the same public operations.
 - `tests/vectors.json` — language-independent conformance vectors.
-- Runtime tests execute the same vectors in Python, PHP, and TypeScript.
+- Runtime tests execute the same vectors in Python, PHP, TypeScript, and Rust.
 
 ## Run
 
