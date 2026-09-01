@@ -17,9 +17,9 @@ This prototype intentionally separates:
 - `python/misp_validation/runtime.py` — Python interpreter for the rule language.
 - `php/MispValidation/RuleEngine.php` — PHP interpreter with the same public operations.
 - `typescript/src/index.ts` — TypeScript interpreter with the same public operations.
-- `src/lib.rs` — Rust interpreter and crate with the same public operations.
+- `rust/src/lib.rs` — Rust interpreter and crate with the same public operations.
 - `tests/vectors.json` — language-independent conformance vectors.
-- Runtime tests execute the same vectors in Python, PHP, and TypeScript.
+- Runtime tests execute the same vectors in Python, PHP, TypeScript, and Rust.
 
 ## Run
 
@@ -28,7 +28,7 @@ python tests/test_runtime.py
 php -d zend.assertions=1 -d assert.exception=1 tests/test_runtime.php
 npm install
 npm test
-cargo test
+cargo test --manifest-path rust/Cargo.toml
 ```
 
 All runtimes are checked against the same vectors. The pinned upstream MISP

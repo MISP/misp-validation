@@ -1,5 +1,6 @@
 use misp_validation::RuleEngine;
 use serde::Deserialize;
+use std::{fs, path::PathBuf};
 
 #[derive(Deserialize)]
 struct Vector {
@@ -12,9 +13,13 @@ struct Vector {
 
 #[test]
 fn shared_conformance_vectors() {
-    let vectors: Vec<Vector> = serde_json::from_str(include_str!("vectors.json")).unwrap();
-    let engine = RuleEngine::from_file("spec/attributes.json").unwrap();
+    let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("..");
+    let engine = RuleEngine::from_file(root.join("spec/attributes.json")).unwrap();
     let default_engine = RuleEngine::from_default_spec().unwrap();
+    let vectors: Vec<Vector> =
+        serde_json::from_str(&fs::read_to_string(root.join("tests/vectors.json")).unwrap())
+            .unwrap();
+
     for (index, vector) in vectors.iter().enumerate() {
         let result = engine.validate(&vector.type_name, &vector.input).unwrap();
         assert_eq!(
@@ -33,4 +38,6 @@ fn shared_conformance_vectors() {
             "vector {index}: bundled spec differs"
         );
     }
+
+    println!("OK: {} validation vectors", vectors.len());
 }
