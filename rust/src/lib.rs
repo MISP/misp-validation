@@ -130,6 +130,7 @@ impl RuleEngine {
             .get(name)
             .ok_or_else(|| RuleEngineError::UnknownType(name.to_owned()))
     }
+
     fn default_normalizers(&self) -> &[Value] {
         array(self.spec.get("defaults").and_then(|v| v.get("normalize")))
     }
@@ -362,23 +363,28 @@ fn array(value: Option<&Value>) -> &[Value] {
 fn text(value: Option<&Value>) -> Option<&str> {
     value.and_then(Value::as_str)
 }
+
 fn required<'a>(value: &'a Value, key: &str) -> Result<&'a Value, RuleEngineError> {
     value
         .get(key)
         .ok_or_else(|| RuleEngineError::MissingField(key.to_owned()))
 }
+
 fn required_text<'a>(value: &'a Value, key: &str) -> Result<&'a str, RuleEngineError> {
     required(value, key)?
         .as_str()
         .ok_or_else(|| RuleEngineError::InvalidFieldType(key.to_owned()))
 }
+
 fn numeric_regex() -> &'static Regex {
     static REGEX: OnceLock<Regex> = OnceLock::new();
     REGEX.get_or_init(|| Regex::new(r"^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$").unwrap())
 }
+
 fn is_hex(value: &str) -> bool {
     !value.is_empty() && value.bytes().all(|c| c.is_ascii_hexdigit())
 }
+
 fn integer_is_valid(rule: &Value, value: &str) -> bool {
     let digits = value.strip_prefix(['+', '-']).unwrap_or(value);
     if digits.is_empty() || !digits.bytes().all(|byte| byte.is_ascii_digit()) {
@@ -412,6 +418,7 @@ fn normalize_ip(value: &str) -> String {
         (_, Some(prefix)) => format!("{normalized}/{prefix}"),
     }
 }
+
 fn valid_ip(value: &str, allow_cidr: bool) -> bool {
     let Some((ip, prefix)) = value.split_once('/') else {
         return IpAddr::from_str(value).is_ok();
@@ -450,6 +457,7 @@ fn date_regex() -> &'static Regex {
         .unwrap()
     })
 }
+
 fn parse_datetime(value: &str) -> Option<(chrono::DateTime<FixedOffset>, String)> {
     let captures = date_regex().captures(value)?;
     let number = |index: usize| captures[index].parse::<u32>().ok();
@@ -483,6 +491,7 @@ fn parse_datetime(value: &str) -> Option<(chrono::DateTime<FixedOffset>, String)
         },
     ))
 }
+
 fn normalize_datetime(value: &str) -> Option<String> {
     if let Some((datetime, offset)) = parse_datetime(value) {
         return Some(format!(
@@ -510,6 +519,7 @@ fn normalize_datetime(value: &str) -> Option<String> {
         0
     ))
 }
+
 fn valid_ssh_fingerprint(value: &str) -> bool {
     if let Some(encoded) = value.strip_prefix("SHA256:") {
         let padded = format!("{encoded}{}", "=".repeat((4 - encoded.len() % 4) % 4));
