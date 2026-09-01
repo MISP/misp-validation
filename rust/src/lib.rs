@@ -4,7 +4,7 @@ use base64::{engine::general_purpose::STANDARD, Engine as _};
 use chrono::{Duration, FixedOffset, NaiveDate, TimeZone};
 use regex::{Regex, RegexBuilder};
 use serde_json::Value;
-use std::{fs, net::IpAddr, path::Path, str::FromStr};
+use std::{fs, net::IpAddr, path::Path, str::FromStr, sync::OnceLock};
 use thiserror::Error;
 use url::Url;
 
@@ -270,9 +270,7 @@ impl RuleEngine {
         let op = required_text(rule, "op")?;
         let valid = match op {
             "any" => true,
-            "numeric" => Regex::new(r"^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$")
-                .unwrap()
-                .is_match(&value),
+            "numeric" => numeric_regex().is_match(&value),
             "json" => serde_json::from_str::<Value>(&value).is_ok(),
             "url" => {
                 !value.contains(['\r', '\n'])
@@ -372,6 +370,10 @@ fn required_text<'a>(value: &'a Value, key: &str) -> Result<&'a str, RuleEngineE
         .as_str()
         .ok_or_else(|| RuleEngineError::InvalidFieldType(key.to_owned()))
 }
+fn numeric_regex() -> &'static Regex {
+    static REGEX: OnceLock<Regex> = OnceLock::new();
+    REGEX.get_or_init(|| Regex::new(r"^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$").unwrap())
+}
 fn is_hex(value: &str) -> bool {
     !value.is_empty() && value.bytes().all(|c| c.is_ascii_hexdigit())
 }
@@ -437,11 +439,14 @@ fn normalize_ip_port(value: &str) -> String {
     )
 }
 
-fn date_regex() -> Regex {
-    Regex::new(
-        r"^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2}):(\d{2})(?:\.\d+)?(Z|[+-]\d{2}:?\d{2})?$",
-    )
-    .unwrap()
+fn date_regex() -> &'static Regex {
+    static REGEX: OnceLock<Regex> = OnceLock::new();
+    REGEX.get_or_init(|| {
+        Regex::new(
+            r"^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2}):(\d{2})(?:\.\d+)?(Z|[+-]\d{2}:?\d{2})?$",
+        )
+        .unwrap()
+    })
 }
 fn parse_datetime(value: &str) -> Option<(chrono::DateTime<FixedOffset>, String)> {
     let captures = date_regex().captures(value)?;
