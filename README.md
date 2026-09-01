@@ -17,6 +17,7 @@ This prototype intentionally separates:
 - `python/misp_validation/runtime.py` — Python interpreter for the rule language.
 - `php/MispValidation/RuleEngine.php` — PHP interpreter with the same public operations.
 - `typescript/src/index.ts` — TypeScript interpreter with the same public operations.
+- `src/lib.rs` — Rust interpreter and crate with the same public operations.
 - `tests/vectors.json` — language-independent conformance vectors.
 - Runtime tests execute the same vectors in Python, PHP, and TypeScript.
 
@@ -27,6 +28,7 @@ python tests/test_runtime.py
 php -d zend.assertions=1 -d assert.exception=1 tests/test_runtime.php
 npm install
 npm test
+cargo test
 ```
 
 All runtimes are checked against the same vectors. The pinned upstream MISP
@@ -87,6 +89,20 @@ console.assert(result.valid);
 ```
 
 The npm package includes compiled declarations and the default attribute specification.
+
+## Use the Rust crate
+
+```rust
+use misp_validation::RuleEngine;
+
+let engine = RuleEngine::from_default_spec()?;
+let result = engine.validate("md5", "d41d8cd98f00b204e9800998ecf8427e")?;
+assert!(result.valid);
+# Ok::<(), Box<dyn std::error::Error>>(())
+```
+
+The crate compiles the default attribute specification into the library and also
+supports loading a rule document at runtime with `RuleEngine::from_file`.
 
 ## Design rule
 

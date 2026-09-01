@@ -1,0 +1,17 @@
+[package]
+name = "misp-validation"
+version = "0.1.0"
+edition = "2021"
+description = "Portable normalization and validation rules for MISP attributes"
+license = "BSD-2-Clause"
+
+[dependencies]
+base64 = "0.22"
+chrono = "0.4"
+regex = "1"
+serde_json = "1"
+url = "2"
+
+[dev-dependencies]
+serde = { version = "1", features = ["derive"] }
+
