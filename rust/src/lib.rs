@@ -530,3 +530,553 @@ fn valid_ssh_fingerprint(value: &str) -> bool {
     let digest = value.strip_prefix("MD5:").unwrap_or(value).replace(':', "");
     digest.len() == 32 && is_hex(&digest)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde_json::json;
+
+    fn engine(spec: Value) -> RuleEngine {
+        RuleEngine::new(spec).unwrap()
+    }
+
+    // --- construction & type lookup ---
+
+    #[test]
+    fn new_rejects_spec_without_types_object() {
+        assert!(matches!(
+            RuleEngine::new(json!({})),
+            Err(RuleEngineError::MissingTypes)
+        ));
+        assert!(matches!(
+            RuleEngine::new(json!({"types": "not-an-object"})),
+            Err(RuleEngineError::MissingTypes)
+        ));
+    }
+
+    #[test]
+    fn new_accepts_empty_types_object() {
+        assert!(RuleEngine::new(json!({"types": {}})).is_ok());
+    }
+
+    #[test]
+    fn unknown_type_is_reported() {
+        let engine = engine(json!({"types": {}}));
+        assert!(matches!(
+            engine.normalize("md5", "x"),
+            Err(RuleEngineError::UnknownType(name)) if name == "md5"
+        ));
+        assert!(matches!(
+            engine.validate("md5", "x"),
+            Err(RuleEngineError::UnknownType(name)) if name == "md5"
+        ));
+    }
+
+    #[test]
+    fn from_file_reports_io_error_for_missing_file() {
+        assert!(matches!(
+            RuleEngine::from_file("/nonexistent/does-not-exist.json"),
+            Err(RuleEngineError::Io(_))
+        ));
+    }
+
+    #[test]
+    fn from_file_reports_json_error_for_invalid_json() {
+        let path = std::env::temp_dir().join("misp-validation-test-invalid-spec.json");
+        fs::write(&path, "not json").unwrap();
+        let result = RuleEngine::from_file(&path);
+        fs::remove_file(&path).unwrap();
+        assert!(matches!(result, Err(RuleEngineError::Json(_))));
+    }
+
+    #[test]
+    fn from_default_spec_validates_a_known_type() {
+        let engine = RuleEngine::from_default_spec().unwrap();
+        let result = engine
+            .validate("md5", "d41d8cd98f00b204e9800998ecf8427e")
+            .unwrap();
+        assert!(result.valid);
+    }
+
+    // --- normalize/validate plumbing ---
+
+    #[test]
+    fn default_normalizers_apply_before_type_normalizers() {
+        let engine = engine(json!({
+            "defaults": {"normalize": [{"op": "trim"}]},
+            "types": {
+                "greeting": {
+                    "normalize": [{"op": "uppercase"}],
+                    "validate": {"op": "any"}
+                }
+            }
+        }));
+        assert_eq!(engine.normalize("greeting", "  hello  ").unwrap(), "HELLO");
+    }
+
+    #[test]
+    fn validate_reports_configured_error_or_default() {
+        let engine = engine(json!({
+            "types": {
+                "custom": {
+                    "validate": {"op": "hex"},
+                    "error": {"code": "bad_custom", "message": "Nope."}
+                },
+                "custom_default_error": {
+                    "validate": {"op": "hex"}
+                }
+            }
+        }));
+
+        let result = engine.validate("custom", "zz").unwrap();
+        assert!(!result.valid);
+        assert_eq!(
+            result.error,
+            Some(ValidationError {
+                code: "bad_custom".into(),
+                message: "Nope.".into(),
+            })
+        );
+
+        let result = engine.validate("custom_default_error", "zz").unwrap();
+        assert_eq!(
+            result.error,
+            Some(ValidationError {
+                code: "invalid_value".into(),
+                message: "Invalid value.".into(),
+            })
+        );
+
+        assert_eq!(engine.validate("custom", "ab").unwrap().error, None);
+    }
+
+    #[test]
+    fn valid_types_lists_matching_types_only() {
+        let engine = engine(json!({
+            "types": {
+                "hex_only": {"validate": {"op": "hex"}},
+                "any_value": {"validate": {"op": "any"}},
+                "numbers_only": {"validate": {"op": "numeric"}}
+            }
+        }));
+        let mut types = engine.valid_types("ff").unwrap();
+        types.sort();
+        assert_eq!(types, vec!["any_value", "hex_only"]);
+    }
+
+    // --- apply_normalizers error paths ---
+
+    #[test]
+    fn normalizer_missing_op_field_is_reported() {
+        let engine = engine(json!({
+            "types": {"t": {"normalize": [{}], "validate": {"op": "any"}}}
+        }));
+        assert!(matches!(
+            engine.normalize("t", "x"),
+            Err(RuleEngineError::MissingField(field)) if field == "op"
+        ));
+    }
+
+    #[test]
+    fn normalizer_op_field_must_be_text() {
+        let engine = engine(json!({
+            "types": {"t": {"normalize": [{"op": 5}], "validate": {"op": "any"}}}
+        }));
+        assert!(matches!(
+            engine.normalize("t", "x"),
+            Err(RuleEngineError::InvalidFieldType(field)) if field == "op"
+        ));
+    }
+
+    #[test]
+    fn unsupported_normalizer_op_is_reported() {
+        let engine = engine(json!({
+            "types": {"t": {"normalize": [{"op": "nope"}], "validate": {"op": "any"}}}
+        }));
+        assert!(matches!(
+            engine.normalize("t", "x"),
+            Err(RuleEngineError::UnsupportedNormalizer(op)) if op == "nope"
+        ));
+    }
+
+    // --- validate_rule error paths & validators ---
+
+    #[test]
+    fn missing_validate_rule_is_reported() {
+        let engine = engine(json!({"types": {"t": {}}}));
+        assert!(matches!(
+            engine.validate("t", "x"),
+            Err(RuleEngineError::MissingField(field)) if field == "validate"
+        ));
+    }
+
+    #[test]
+    fn unsupported_validator_op_is_reported() {
+        let engine = engine(json!({
+            "types": {"t": {"validate": {"op": "nope"}}}
+        }));
+        assert!(matches!(
+            engine.validate("t", "x"),
+            Err(RuleEngineError::UnsupportedValidator(op)) if op == "nope"
+        ));
+    }
+
+    #[test]
+    fn unknown_hash_definition_is_reported() {
+        let engine = engine(json!({
+            "types": {"t": {"validate": {"op": "hash", "algorithm": "sha1"}}}
+        }));
+        assert!(matches!(
+            engine.validate("t", "x"),
+            Err(RuleEngineError::UnknownHashDefinition(algorithm)) if algorithm == "sha1"
+        ));
+    }
+
+    #[test]
+    fn non_hex_hash_encoding_is_rejected() {
+        let engine = engine(json!({
+            "definitions": {"hashes": {"custom": {"encoding": "base64", "length": 10}}},
+            "types": {"t": {"validate": {"op": "hash", "algorithm": "custom"}}}
+        }));
+        assert!(matches!(
+            engine.validate("t", "x"),
+            Err(RuleEngineError::UnsupportedHashEncoding)
+        ));
+    }
+
+    #[test]
+    fn hash_accepts_any_configured_length() {
+        let engine = engine(json!({
+            "definitions": {"hashes": {"custom": {"encoding": "hex", "length": [4, 8]}}},
+            "types": {"t": {"validate": {"op": "hash", "algorithm": "custom"}}}
+        }));
+        assert!(engine.validate("t", "abcd").unwrap().valid);
+        assert!(engine.validate("t", "abcdef12").unwrap().valid);
+        assert!(!engine.validate("t", "abc").unwrap().valid);
+    }
+
+    #[test]
+    fn invalid_regex_pattern_is_reported() {
+        let engine = engine(json!({
+            "types": {"t": {"validate": {"op": "regex", "pattern": "("}}}
+        }));
+        assert!(matches!(
+            engine.validate("t", "x"),
+            Err(RuleEngineError::Regex(_))
+        ));
+    }
+
+    #[test]
+    fn string_validator_enforces_length_and_forbidden_tokens() {
+        let engine = engine(json!({
+            "types": {
+                "t": {
+                    "validate": {
+                        "op": "string",
+                        "min_length": 2,
+                        "max_length": 4,
+                        "forbidden": ["bad"]
+                    }
+                }
+            }
+        }));
+        assert!(engine.validate("t", "ok").unwrap().valid);
+        assert!(!engine.validate("t", "a").unwrap().valid);
+        assert!(!engine.validate("t", "toolong").unwrap().valid);
+        assert!(!engine.validate("t", "badx").unwrap().valid);
+    }
+
+    // --- composite validator ---
+
+    #[test]
+    fn composite_validates_and_normalizes_each_field() {
+        let engine = engine(json!({
+            "types": {
+                "pair": {
+                    "validate": {
+                        "op": "composite",
+                        "separator": "|",
+                        "fields": [
+                            {"normalize": [{"op": "lowercase"}], "validate": {"op": "hex"}},
+                            {"validate": {"op": "numeric"}}
+                        ]
+                    }
+                }
+            }
+        }));
+        let result = engine.validate("pair", "AB|42").unwrap();
+        assert!(result.valid);
+        assert_eq!(result.value, "ab|42");
+    }
+
+    #[test]
+    fn composite_rejects_wrong_field_count() {
+        let engine = engine(json!({
+            "types": {
+                "pair": {
+                    "validate": {
+                        "op": "composite",
+                        "separator": "|",
+                        "fields": [{"validate": {"op": "any"}}, {"validate": {"op": "any"}}]
+                    }
+                }
+            }
+        }));
+        assert!(!engine.validate("pair", "only-one").unwrap().valid);
+    }
+
+    // --- normalizer nuances ---
+
+    #[test]
+    fn strip_prefix_respects_case_insensitive_flag() {
+        let case_sensitive = engine(json!({
+            "types": {"t": {
+                "normalize": [{"op": "strip_prefix", "value": "MD5:"}],
+                "validate": {"op": "any"}
+            }}
+        }));
+        assert_eq!(case_sensitive.normalize("t", "md5:abc").unwrap(), "md5:abc");
+        assert_eq!(case_sensitive.normalize("t", "MD5:abc").unwrap(), "abc");
+
+        let case_insensitive = engine(json!({
+            "types": {"t": {
+                "normalize": [{"op": "strip_prefix", "value": "MD5:", "case_insensitive": true}],
+                "validate": {"op": "any"}
+            }}
+        }));
+        assert_eq!(case_insensitive.normalize("t", "md5:abc").unwrap(), "abc");
+    }
+
+    #[test]
+    fn trim_chars_uses_configured_character_set() {
+        let engine = engine(json!({
+            "types": {"t": {
+                "normalize": [{"op": "trim_chars", "characters": "#*"}],
+                "validate": {"op": "any"}
+            }}
+        }));
+        assert_eq!(engine.normalize("t", "##hello**").unwrap(), "hello");
+    }
+
+    #[test]
+    fn replace_non_bmp_uses_configured_replacement() {
+        let engine = engine(json!({
+            "types": {"t": {
+                "normalize": [{"op": "replace_non_bmp", "replacement": "!"}],
+                "validate": {"op": "any"}
+            }}
+        }));
+        assert_eq!(engine.normalize("t", "a\u{1F600}b").unwrap(), "a!b");
+    }
+
+    // --- Display impls ---
+
+    #[test]
+    fn validation_error_display_includes_code_and_message() {
+        let error = ValidationError {
+            code: "bad".into(),
+            message: "Broken.".into(),
+        };
+        assert_eq!(error.to_string(), "Broken. (bad)");
+    }
+
+    #[test]
+    fn rule_engine_error_messages() {
+        assert_eq!(
+            RuleEngineError::UnknownType("md5".into()).to_string(),
+            "unknown attribute type: md5"
+        );
+        assert_eq!(
+            RuleEngineError::MissingTypes.to_string(),
+            "specification has no types object"
+        );
+    }
+
+    // --- private helper functions ---
+
+    #[test]
+    fn is_numeric_accepts_common_numeric_forms() {
+        for valid in [
+            "0",
+            "42",
+            "-3.14",
+            "+123456789",
+            "6.02e23",
+            ".5",
+            "5.",
+            "5e10",
+            "5E-10",
+            "-0",
+        ] {
+            assert!(is_numeric(valid), "expected {valid:?} to be numeric");
+        }
+    }
+
+    #[test]
+    fn is_numeric_rejects_malformed_input() {
+        for invalid in [
+            "",
+            "+",
+            "-",
+            ".",
+            "1.2.3",
+            "5e",
+            "5e+",
+            "5e-",
+            "not-a-number",
+            "5 ",
+            " 5",
+            "5\n",
+        ] {
+            assert!(!is_numeric(invalid), "expected {invalid:?} to be rejected");
+        }
+    }
+
+    #[test]
+    fn is_numeric_matches_retired_regex_grammar() {
+        // `is_numeric` replaced a regex match on this exact pattern for
+        // performance; this pins the two implementations together so a
+        // future edit to either can't silently diverge.
+        let reference = Regex::new(r"^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$").unwrap();
+        let cases = [
+            "",
+            "+",
+            "-",
+            ".",
+            "0",
+            "-0",
+            "+0",
+            "5.",
+            ".5",
+            "5.5",
+            "5..5",
+            "..5",
+            "5.5.5",
+            "5e",
+            "5e+",
+            "5e-",
+            "5e5",
+            "5e+5",
+            "5e-5",
+            "5E5",
+            "+5e-5",
+            "-.5",
+            "5.e5",
+            "0123",
+            "-0123",
+            "5 ",
+            " 5",
+            "5\n",
+            "5\t",
+            "42",
+            "-3.14",
+            "6.02e23",
+            "not-a-number",
+            "1.2.3",
+            "inf",
+            "nan",
+            "NaN",
+            "Infinity",
+        ];
+        for case in cases {
+            assert_eq!(
+                is_numeric(case),
+                reference.is_match(case),
+                "mismatch for {case:?}"
+            );
+        }
+    }
+
+    #[test]
+    fn is_numeric_accepts_unicode_digits() {
+        // `\d` in the `regex` crate matches any Unicode decimal digit, not
+        // just ASCII 0-9, so this also accepts non-ASCII digit scripts.
+        assert!(is_numeric("٤٢")); // Arabic-Indic digits for "42"
+        assert!(is_numeric("42"));
+    }
+
+    #[test]
+    fn is_hex_rejects_empty_and_non_hex() {
+        assert!(!is_hex(""));
+        assert!(!is_hex("zz"));
+        assert!(is_hex("deadBEEF"));
+    }
+
+    #[test]
+    fn integer_is_valid_enforces_bounds() {
+        let rule = json!({"min": 1, "max": 10});
+        assert!(integer_is_valid(&rule, "5"));
+        assert!(!integer_is_valid(&rule, "0"));
+        assert!(!integer_is_valid(&rule, "11"));
+        assert!(!integer_is_valid(&rule, "abc"));
+        assert!(integer_is_valid(&json!({}), "-123"));
+    }
+
+    #[test]
+    fn normalize_ip_strips_default_prefix_lengths() {
+        assert_eq!(normalize_ip("192.168.0.1/32"), "192.168.0.1");
+        assert_eq!(normalize_ip("192.168.0.1/24"), "192.168.0.1/24");
+        assert_eq!(normalize_ip("::1/128"), "::1");
+        assert_eq!(normalize_ip("not-an-ip"), "not-an-ip");
+    }
+
+    #[test]
+    fn valid_ip_respects_allow_cidr() {
+        assert!(valid_ip("192.168.0.1", false));
+        assert!(!valid_ip("192.168.0.1/24", false));
+        assert!(valid_ip("192.168.0.1/24", true));
+        assert!(!valid_ip("192.168.0.1/33", true));
+        assert!(!valid_ip("192.168.0.1/24/24", true));
+    }
+
+    #[test]
+    fn normalize_ip_port_handles_bracketed_ipv6() {
+        assert_eq!(normalize_ip_port("[::1]:8080"), "::1|8080");
+    }
+
+    #[test]
+    fn normalize_ip_port_handles_plain_host_port() {
+        assert_eq!(normalize_ip_port("192.168.0.1:8080"), "192.168.0.1|8080");
+        assert_eq!(normalize_ip_port("hostvalue"), "hostvalue");
+    }
+
+    #[test]
+    fn parse_datetime_rejects_invalid_calendar_dates() {
+        assert!(parse_datetime("2024-02-30T00:00:00Z").is_none());
+        assert!(parse_datetime("not-a-date").is_none());
+        assert!(parse_datetime("2024-02-29T00:00:00Z").is_some());
+    }
+
+    #[test]
+    fn normalize_datetime_rolls_overflowing_day_into_next_month() {
+        assert_eq!(
+            normalize_datetime("2024-02-30T00:00:00Z"),
+            Some("2024-03-01T00:00:00.000000+0000".into())
+        );
+    }
+
+    #[test]
+    fn normalize_datetime_normalizes_offset_and_fraction() {
+        assert_eq!(
+            normalize_datetime("2024-01-02 03:04:05+02:00"),
+            Some("2024-01-02T03:04:05.000000+0200".into())
+        );
+    }
+
+    #[test]
+    fn normalize_datetime_rejects_garbage() {
+        assert_eq!(normalize_datetime("not-a-date"), None);
+    }
+
+    #[test]
+    fn valid_ssh_fingerprint_accepts_md5_and_sha256_forms() {
+        assert!(valid_ssh_fingerprint(
+            "MD5:aa:bb:cc:dd:ee:ff:00:11:22:33:44:55:66:77:88:99"
+        ));
+        assert!(!valid_ssh_fingerprint("MD5:aabb"));
+        assert!(valid_ssh_fingerprint(
+            "SHA256:AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8"
+        ));
+        assert!(!valid_ssh_fingerprint("SHA256:not-base64!!"));
+    }
+}
