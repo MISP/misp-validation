@@ -273,7 +273,7 @@ impl RuleEngine {
         let op = required_text(rule, "op")?;
         let valid = match op {
             "any" => true,
-            "numeric" => numeric_regex().is_match(&value),
+            "numeric" => is_numeric(&value),
             "json" => serde_json::from_str::<Value>(&value).is_ok(),
             "url" => {
                 !value.contains(['\r', '\n'])
@@ -376,9 +376,11 @@ fn required_text<'a>(value: &'a Value, key: &str) -> Result<&'a str, RuleEngineE
         .ok_or_else(|| RuleEngineError::InvalidFieldType(key.to_owned()))
 }
 
-fn numeric_regex() -> &'static Regex {
+fn is_numeric(value: &str) -> bool {
     static REGEX: OnceLock<Regex> = OnceLock::new();
-    REGEX.get_or_init(|| Regex::new(r"^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$").unwrap())
+    REGEX
+        .get_or_init(|| Regex::new(r"^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$").unwrap())
+        .is_match(value)
 }
 
 fn is_hex(value: &str) -> bool {
